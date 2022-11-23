@@ -12,6 +12,7 @@
 int robot_status = 0;
 int direction[arrSize] = {0}; // 이동 방향
 int distance[arrSize] = {0};
+
 // 적외선 센서 좌, 우 감지에 대한  example
 int exampleL[15] = {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int exampleR[15] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0};
@@ -26,7 +27,9 @@ int main(void) {
   for (int i = 0; i <= 14; i++) {
     if (exampleL[i] == 0 && exampleR[i] == 0) {
       time += 1;
-      direction[index] = FORWARD;
+      // direction[index] = FORWARD;
+      if (!(direction[index] == LEFT || direction[index] == RIGHT)){           direction[index] = FORWARD;
+        }
     }
     if (exampleL[i] == 0 && exampleR[i] == 1) {
       int j = i;
@@ -41,7 +44,7 @@ int main(void) {
       distance[index] = time*SPEED;
       time = 0;
       direction[index+1] = LEFT;
-      index += 2;
+      index += 1;
     }
 
     if (exampleL[i] == 1 && exampleR[i] == 0) {
@@ -58,7 +61,7 @@ int main(void) {
       distance[index] = time*SPEED;
       time = 0;
       direction[index+1] = RIGHT;
-      index += 2;
+      index += 1;
     }
     if (exampleL[i] == 1 && exampleR[i] == 1) {
 
