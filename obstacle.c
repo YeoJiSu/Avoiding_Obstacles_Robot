@@ -1,14 +1,29 @@
 #include <stdio.h>
 #define arrSize 200
-#define FORWARD 1
-#define RIGHT 2
-#define LEFT 3
 #define SPEED 1
 
 #define ROBOT_STOP 0
 #define ROBOT_GO 1
 #define ROBOT_EXIT 2
 
+typedef enum {
+ BACK, LEFT, FORWARD, RIGHT
+}Direction;
+
+Direction rbt_direction = FORWARD;
+
+void turnLeft(){
+  rbt_direction -= 1;
+  if (rbt_direction<BACK){
+    rbt_direction = RIGHT;
+  }
+}
+void turnRight(){
+  rbt_direction +=1;
+  if (rbt_direction > RIGHT) {
+    rbt_direction = BACK;
+  }
+}
 int robot_status = 0;
 int direction[arrSize] = {0}; // 이동 방향
 int distance[arrSize] = {0};
@@ -28,8 +43,9 @@ int main(void) {
     if (exampleL[i] == 0 && exampleR[i] == 0) {
       time += 1;
       // direction[index] = FORWARD;
-      if (!(direction[index] == LEFT || direction[index] == RIGHT)){           direction[index] = FORWARD;
-        }
+      if (!(direction[index] == LEFT || direction[index] == RIGHT){
+        direction[index] = FORWARD;
+      }
     }
     if (exampleL[i] == 0 && exampleR[i] == 1) {
       int j = i;
@@ -41,9 +57,10 @@ int main(void) {
           break;
       }
       // 이전단계 저장하기
+      turnLeft();
       distance[index] = time*SPEED;
       time = 0;
-      direction[index+1] = LEFT;
+      direction[index+1] = rbt_direction;
       index += 1;
     }
 
@@ -57,10 +74,11 @@ int main(void) {
         else
           break;
       }
+      turnRight();
       // 이전단계 저장하기
       distance[index] = time*SPEED;
       time = 0;
-      direction[index+1] = RIGHT;
+      direction[index+1] = rbt_direction;
       index += 1;
     }
     if (exampleL[i] == 1 && exampleR[i] == 1) {
