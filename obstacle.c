@@ -1,110 +1,106 @@
 #include <stdio.h>
-#define arrSize 200
-#define SPEED 1
+#include <stdbool.h>
 
-#define ROBOT_STOP 0
-#define ROBOT_GO 1
-#define ROBOT_EXIT 2
+#define arrSize 1000
+#define GO 1
+#define STOP 0
 
 typedef enum {
- BACK, LEFT, FORWARD, RIGHT
+    BACK, LEFT, FORWARD, RIGHT
 }Direction;
 
-Direction rbt_direction = FORWARD;
+typedef struct Trace {
+    Direction dir;
+    int time;
+}Trace;
 
-void turnLeft(){
-  rbt_direction -= 1;
-  if (rbt_direction<BACK){
-    rbt_direction = RIGHT;
-  }
-}
-void turnRight(){
-  rbt_direction +=1;
-  if (rbt_direction > RIGHT) {
-    rbt_direction = BACK;
-  }
-}
-int robot_status = 0;
-int direction[arrSize] = {0}; // 이동 방향
-int distance[arrSize] = {0};
+typedef struct robot {
+    Direction direction; // 출발점의 시야
+    bool isGo; // 정지 또는 출발
+    Trace* trace; // 지나온 길 (MAP)
+    int forwardBackward; // 앞뒤 변위 (결승점까지 남은 거리)
+    int leftRight; // 좌우 변위 (좌회전, 우회전 결정요소)
+}robot;
 
-// 적외선 센서 좌, 우 감지에 대한  example
-int exampleL[15] = {0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int exampleR[15] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0};
+void turnLeft(robot* rbt)
+{
+    rbt->direction -= 1;
+    if (rbt->direction < BACK)
+        rbt->direction = RIGHT;
+}
+
+void turnRight(robot* rbt) {
+    rbt->direction += 1;
+    if (rbt->direction > RIGHT)
+        rbt->direction = BACK;
+}
+
+Trace trace2[arrSize] = { {FORWARD, 0}, };
+int index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
+
+int exampleF[15] = { 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
+int exampleL[15] = { 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0 };
+int exampleR[15] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0 };
+//                      if(o, Dirction == LEFT)
+
+void setNewDirectionToTrace(robot* rbt) {
+    rbt->trace[index].dir = rbt->direction;
+    rbt->trace[index].time = 0;
+}
+
+bool noObstacle(int idx) {
+    return !exampleF[idx] && !exampleL[idx] && !exampleR[idx];
+}
+
+bool frontLeftObstacle(int idx) {
+    return exampleF[idx] && exampleL[idx] && !exampleR[idx];
+}
+
+bool frontObstacle() {
+    return false;
+}
+
+void timePassed(robot* rbt) {
+    rbt->trace[index].time++;
+}
 
 int main(void) {
-  int time = 0;
-  robot_status = ROBOT_GO;
+    struct robot rbt = { FORWARD, GO, trace2, 0, 0 }; // 로봇 상태 초기화;
 
-  int index = 0;
-  
+    // robot* rbt_ptr = &rbt;
+    // turnLeft(&rbt);
+    // setNewDirectionToTrace(rbt_ptr);
 
-  for (int i = 0; i <= 14; i++) {
-    if (exampleL[i] == 0 && exampleR[i] == 0) {
-      time += 1;
-      // direction[index] = FORWARD;
-      if (!(direction[index] == LEFT || direction[index] == RIGHT){
-        direction[index] = FORWARD;
-      }
+    for (int currPos = 0; currPos < 15; currPos++)
+    {
+        if (noObstacle(currPos) && (rbt.direction == FORWARD)) { // 현재 위치의 장애물이 없는 경우
+            // time ++;
+            // setNewDir 사용 안 함;
+            // increase Trace[index].time;
+            timePassed(&rbt);
+        }
+        else if (frontLeftObstacle(currPos) && (rbt.direction == FORWARD)) {
+            // frontLeft가 없어질 때 까지 회전한 후, S/W로 turnRight()를 한번만 해야 Back상태로 가지 않음. 
+
+            while (frontLeftObstacle(currPos)) {
+                // Rotate Robot() : H/W
+                currPos++;
+            }
+
+            turnRight(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+
+        }
+        else if (leftObstacle() && rbt.direction == RIGHT) {
+            // Go until noLeftObstacle;
+        }
+        else {
+
+        }
     }
-    if (exampleL[i] == 0 && exampleR[i] == 1) {
-      int j = i;
-      while (1) {
-        j++;
-        if (exampleL[j] == 0 && exampleR[j] == 1)
-          i++;
-        else
-          break;
-      }
-      // 이전단계 저장하기
-      turnLeft();
-      distance[index] = time*SPEED;
-      time = 0;
-      direction[index+1] = rbt_direction;
-      index += 1;
-    }
-
-    if (exampleL[i] == 1 && exampleR[i] == 0) {
-
-      int j = i;
-      while (1) {
-        j++;
-        if (exampleL[j] == 1 && exampleR[j] == 0)
-          i++;
-        else
-          break;
-      }
-      turnRight();
-      // 이전단계 저장하기
-      distance[index] = time*SPEED;
-      time = 0;
-      direction[index+1] = rbt_direction;
-      index += 1;
-    }
-    if (exampleL[i] == 1 && exampleR[i] == 1) {
-
-      int j = i;
-      while (1) {
-        j++;
-        if (exampleL[j] == 1 && exampleR[j] == 1)
-          i++;
-        else
-          break;
-      }
-      // 이전단계 저장하기
-      direction[index] = time*SPEED;
-      time = 0;
-    }
-    // 직진 거리 저장
-    if (time != 0){
-      distance[index] = time*SPEED;
-    }
-    
-  }
-
-  robot_status = ROBOT_EXIT;
-  for (int i = 0; i <= 15; i++) {
-    printf("방향: %d, 거리: %d\n", direction[i], distance[i]);
-  }
-  return 0;
+    // 
+    /*for (int i = 0; i < index; i++)
+    {
+        printf()
+    }*/
 }
