@@ -1,3 +1,4 @@
+
 #include <stdio.h> // merge 충돌 실험 같이해보기
 #include <stdbool.h>
 
