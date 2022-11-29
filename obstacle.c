@@ -1,4 +1,5 @@
-#include <stdio.h> // merge 충돌 실험
+
+#include <stdio.h> // merge 충돌 실험 같이해보기
 #include <stdbool.h>
 
 #define arrSize 1000
@@ -56,8 +57,29 @@ bool frontLeftObstacle(int idx) {
     return exampleF[idx] && exampleL[idx] && !exampleR[idx];
 }
 
+bool frontRightObstacle(int idx) {
+    return exampleF[idx] && !exampleL[idx] && exampleR[idx];
+}
+
+bool leftObstacle(int idx) {
+    return !exampleF[idx] && exampleL[idx] && !exampleR[idx];
+}
+
 bool frontObstacle() {
-    return false;
+    return true;
+}
+
+bool isRobotForward(robot* rbt) {
+    return rbt->direction == FORWARD;
+}
+bool isRobotLeft(robot* rbt) {
+    return rbt->direction == LEFT;
+}
+bool isRobotRight(robot* rbt) {
+    return rbt->direction == RIGHT;
+}
+bool isRobotBack(robot* rbt) {
+    return rbt->direction == BACK;
 }
 
 void timePassed(robot* rbt) {
@@ -73,13 +95,13 @@ int main(void) {
 
     for (int currPos = 0; currPos < 15; currPos++)
     {
-        if (noObstacle(currPos) && (rbt.direction == FORWARD)) { // 현재 위치의 장애물이 없는 경우
+        if (noObstacle(currPos) && isRobotForward(&rbt)) { // 현재 위치의 장애물이 없는 경우
             // time ++;
             // setNewDir 사용 안 함;
             // increase Trace[index].time;
             timePassed(&rbt);
         }
-        else if (frontLeftObstacle(currPos) && (rbt.direction == FORWARD)) {
+        else if (frontLeftObstacle(currPos) && isRobotForward(&rbt)) {
             // frontLeft가 없어질 때 까지 회전한 후, S/W로 turnRight()를 한번만 해야 Back상태로 가지 않음. 
 
             while (frontLeftObstacle(currPos)) {
@@ -89,10 +111,20 @@ int main(void) {
 
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
-
         }
-        else if (leftObstacle() && rbt.direction == RIGHT) {
+		else if (frontRightObstacle() && isRobotForward(&rbt)) {
+            while (frontRightObstacle(currPos)) {
+                // Rotate Robot() : H/W
+                currPos++;
+            }
+
+            turnLeft(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+
+		else if (leftObstacle() && isRobotRight(&rbt)) {
             // Go until noLeftObstacle;
+            timePassed(&rbt);
         }
         else {
 
