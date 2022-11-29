@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <stdio.h> // merge 충돌 실험
 #include <stdbool.h>
 
 #define arrSize 1000
