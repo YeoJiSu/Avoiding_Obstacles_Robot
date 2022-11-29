@@ -112,7 +112,7 @@ int main(void) {
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-		else if (frontRightObstacle() && isRobotForward(&rbt)) {
+		else if (frontRightObstacle(currPos) && isRobotForward(&rbt)) {
             while (frontRightObstacle(currPos)) {
                 // Rotate Robot() : H/W
                 currPos++;
@@ -122,7 +122,7 @@ int main(void) {
             setNewDirectionToTrace(&rbt); // setTrace
         }
 
-		else if (leftObstacle() && isRobotRight(&rbt)) {
+		else if (leftObstacle(currPos) && isRobotRight(&rbt)) {
             // Go until noLeftObstacle;
             timePassed(&rbt);
         }
