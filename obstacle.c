@@ -5,6 +5,7 @@
 #define arrSize 1000
 #define GO 1
 #define STOP 0
+#define Arrival 17
 
 typedef enum {
     BACK, LEFT, FORWARD, RIGHT
@@ -39,9 +40,9 @@ void turnRight(robot* rbt) {
 Trace trace2[arrSize] = { {FORWARD, 0}, };
 int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
-int exampleF[15] = { 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
-int exampleL[15] = { 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0 };
-int exampleR[15] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0 };
+int exampleF[36] = { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
+int exampleL[36] = { 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,};
+int exampleR[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
 //                      if(o, Dirction == LEFT)
 
 void setNewDirectionToTrace(robot* rbt) {
@@ -99,6 +100,9 @@ int main(void) {
 
     for (int currPos = 0; currPos < 15; currPos++)
     {
+        if (rbt.forwardBackward >= Arrival) { // 도착지에 도착했으면 멈춰라 
+            break;
+        }
         if (noObstacle(currPos) && isRobotForward(&rbt)) { // 현재 위치의 장애물이 없는 경우
             // time ++;
             // setNewDir 사용 안 함;
@@ -150,14 +154,35 @@ int main(void) {
             turnLeft(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-        else if (frontObstacle(currPos) && isRobotFront(&rbt)) {
+        else if (frontObstacle(currPos) && isRobotForward(&rbt)) {
             if (rbt.leftRight > 0) {
+                while (frontObstacle(currPos)) {
+                    // Rotate Robot() : H/W -> 로봇을 왼쪽으로 돌리기 
+                    currPos++;
+                }
                 turnLeft(&rbt); // setStatus
             }
             else{
+                while (frontObstacle(currPos)) {
+                    // Rotate Robot() : H/W -> 로봇을 오른쪽으로 돌리기 
+                    currPos++;
+                }
                 turnRight(&rbt); // setStatus
             }
             setNewDirectionToTrace(&rbt); // setTrace
+        }
+
+        // 직진 변위 계산하기 
+        if (isRobotForward(&rbt) && (noObstacle(currPos) || rightObstacle(currPos) || leftObstacle(currPos))) {
+            rbt.forwardBackward++;
+        }
+
+        // 좌우 변위 계산하기
+        if (isRobotRight(&rbt) && leftObstacle(currPos)) {
+            rbt.leftRight++;
+        }
+        if (isRobotLeft(&rbt) && rightObstacle(currPos)) {
+            rbt.leftRight--;
         }
 
     }
