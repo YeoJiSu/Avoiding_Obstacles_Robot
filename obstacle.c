@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <stdio.h> // merge 충돌 실험 같이해보기
 #include <stdbool.h>
 
 #define arrSize 1000
@@ -57,7 +57,7 @@ bool frontLeftObstacle(int idx) {
 }
 
 bool frontObstacle() {
-    return false;
+    return true;
 }
 
 void timePassed(robot* rbt) {
