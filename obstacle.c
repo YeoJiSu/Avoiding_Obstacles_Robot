@@ -37,7 +37,7 @@ void turnRight(robot* rbt) {
 }
 
 Trace trace2[arrSize] = { {FORWARD, 0}, };
-int index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
+int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
 int exampleF[15] = { 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
 int exampleL[15] = { 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0 };
@@ -45,8 +45,8 @@ int exampleR[15] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0 };
 //                      if(o, Dirction == LEFT)
 
 void setNewDirectionToTrace(robot* rbt) {
-    rbt->trace[index].dir = rbt->direction;
-    rbt->trace[index].time = 0;
+    rbt->trace[rbt_index].dir = rbt->direction;
+    rbt->trace[rbt_index].time = 0;
 }
 
 bool noObstacle(int idx) {
@@ -65,8 +65,12 @@ bool leftObstacle(int idx) {
     return !exampleF[idx] && exampleL[idx] && !exampleR[idx];
 }
 
-bool frontObstacle() {
-    return true;
+bool rightObstacle(int idx) {
+    return !exampleF[idx] && !exampleL[idx] && exampleR[idx];
+}
+
+bool frontObstacle(int idx) {
+    return exampleF[idx] && !exampleL[idx] && !exampleR[idx];
 }
 
 bool isRobotForward(robot* rbt) {
@@ -83,7 +87,7 @@ bool isRobotBack(robot* rbt) {
 }
 
 void timePassed(robot* rbt) {
-    rbt->trace[index].time++;
+    rbt->trace[rbt_index].time++;
 }
 
 int main(void) {
@@ -126,9 +130,36 @@ int main(void) {
             // Go until noLeftObstacle;
             timePassed(&rbt);
         }
-        else {
-
+        else if (rightObstacle(currPos) && isRobotLeft(&rbt)) {
+            // Go until noRightObstacle;
+            timePassed(&rbt);
         }
+        else if (noObstacle(currPos) && isRobotLeft(&rbt)) {
+            turnRight(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+        else if (frontRightObstacle(currPos) && isRobotLeft(&rbt)) {
+            turnRight(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+        else if (noObstacle(currPos) && isRobotRight(&rbt)) {
+            turnLeft(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+        else if (frontLeftObstacle(currPos) && isRobotRight(&rbt)) {
+            turnLeft(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+        else if (frontObstacle(currPos) && isRobotFront(&rbt)) {
+            if (rbt.leftRight > 0) {
+                turnLeft(&rbt); // setStatus
+            }
+            else{
+                turnRight(&rbt); // setStatus
+            }
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+
     }
     // 
     /*for (int i = 0; i < index; i++)
