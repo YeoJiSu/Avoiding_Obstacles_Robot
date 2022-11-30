@@ -211,5 +211,5 @@ int main(void) {
         if (rbt.trace[i].dir == RIGHT) {
             printf("오른쪽으로 %d\n", rbt.trace[i].time);
         }
-  }
+    }
 }
