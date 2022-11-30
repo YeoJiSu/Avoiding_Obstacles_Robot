@@ -46,6 +46,7 @@ int exampleR[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 //                      if(o, Dirction == LEFT)
 
 void setNewDirectionToTrace(robot* rbt) {
+    rbt_index++;
     rbt->trace[rbt_index].dir = rbt->direction;
     rbt->trace[rbt_index].time = 0;
 }
@@ -98,7 +99,7 @@ int main(void) {
     // turnLeft(&rbt);
     // setNewDirectionToTrace(rbt_ptr);
 
-    for (int currPos = 0; currPos < 15; currPos++)
+    for (int currPos = 0; currPos < 36; currPos++)
     {
         if (rbt.forwardBackward >= Arrival) { // 도착지에 도착했으면 멈춰라 
             break;
@@ -107,6 +108,12 @@ int main(void) {
             // time ++;
             // setNewDir 사용 안 함;
             // increase Trace[index].time;
+            timePassed(&rbt);
+        }
+        if (leftObstacle(currPos) && isRobotForward(&rbt)) { 
+            timePassed(&rbt);
+        }
+        if (rightObstacle(currPos) && isRobotForward(&rbt)) { 
             timePassed(&rbt);
         }
         else if (frontLeftObstacle(currPos) && isRobotForward(&rbt)) {
@@ -139,22 +146,27 @@ int main(void) {
             timePassed(&rbt);
         }
         else if (noObstacle(currPos) && isRobotLeft(&rbt)) {
+            timePassed(&rbt);
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
         else if (frontRightObstacle(currPos) && isRobotLeft(&rbt)) {
+            timePassed(&rbt);
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
         else if (noObstacle(currPos) && isRobotRight(&rbt)) {
+            timePassed(&rbt);
             turnLeft(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
         else if (frontLeftObstacle(currPos) && isRobotRight(&rbt)) {
+            timePassed(&rbt);
             turnLeft(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
         else if (frontObstacle(currPos) && isRobotForward(&rbt)) {
+            timePassed(&rbt);
             if (rbt.leftRight > 0) {
                 while (frontObstacle(currPos)) {
                     // Rotate Robot() : H/W -> 로봇을 왼쪽으로 돌리기 
@@ -186,9 +198,15 @@ int main(void) {
         }
 
     }
-    // 
-    /*for (int i = 0; i < index; i++)
-    {
-        printf()
-    }*/
+    for (int i = 0; i < 36; i++) {
+        if (rbt.trace[i].dir == LEFT) {
+            printf("왼쪽으로 %d\n", rbt.trace[i].time);
+        }
+        if (rbt.trace[i].dir == FORWARD) {
+            printf("앞으로 %d\n", rbt.trace[i].time);
+        }
+        if (rbt.trace[i].dir == RIGHT) {
+            printf("오른쪽으로 %d\n", rbt.trace[i].time);
+        }
+  }
 }
