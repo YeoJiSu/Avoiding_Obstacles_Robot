@@ -6,6 +6,7 @@
 #define GO 1
 #define STOP 0
 #define Arrival 17
+#define TESTSIZE 36 // 디버깅용으로 앞으로 자료추가는 여기 숫자만 고치면 됩니다!!
 
 typedef enum {
     BACK, LEFT, FORWARD, RIGHT
@@ -40,9 +41,9 @@ void turnRight(robot* rbt) {
 Trace trace2[arrSize] = { {FORWARD, 0}, };
 int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
-int exampleF[36] = { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
-int exampleL[36] = { 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,};
-int exampleR[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
+int exampleF[TESTSIZE] = { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
+int exampleL[TESTSIZE] = { 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,};
+int exampleR[TESTSIZE] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
 //                      if(o, Dirction == LEFT)
 
 void setNewDirectionToTrace(robot* rbt) {
@@ -101,7 +102,7 @@ int main(void) {
     // turnLeft(&rbt);
     // setNewDirectionToTrace(rbt_ptr);
 
-    for (int currPos = 0; currPos < 36; currPos++)
+    for (int currPos = 0; currPos < TESTSIZE; currPos++)
     {
         if (isRobotArrived(&rbt)) { // 도착지에 도착했으면 멈춰라 
             break;
@@ -200,7 +201,7 @@ int main(void) {
         }
 
     }
-    for (int i = 0; i < 36; i++) {
+    for (int i = 0; i < TESTSIZE; i++) {
         if (rbt.trace[i].dir == LEFT) {
             printf("왼쪽으로 %d\n", rbt.trace[i].time);
         }
