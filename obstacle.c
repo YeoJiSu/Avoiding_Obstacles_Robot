@@ -87,7 +87,9 @@ bool isRobotRight(robot* rbt) {
 bool isRobotBack(robot* rbt) {
     return rbt->direction == BACK;
 }
-
+bool isRobotArrived(robot* rbt) {
+    return rbt->forwardBackward >= Arrival;
+}
 void timePassed(robot* rbt) {
     rbt->trace[rbt_index].time++;
 }
@@ -101,7 +103,7 @@ int main(void) {
 
     for (int currPos = 0; currPos < 36; currPos++)
     {
-        if (rbt.forwardBackward >= Arrival) { // 도착지에 도착했으면 멈춰라 
+        if (isRobotArrived(&rbt)) { // 도착지에 도착했으면 멈춰라 
             break;
         }
         if (noObstacle(currPos) && isRobotForward(&rbt)) { // 현재 위치의 장애물이 없는 경우
