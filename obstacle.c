@@ -107,19 +107,19 @@ int main(void) {
         if (isRobotArrived(&rbt)) { // 도착지에 도착했으면 멈춰라 
             break;
         }
-        if (noObstacle(currPos) && isRobotForward(&rbt)) { // 현재 위치의 장애물이 없는 경우
+		if (isRobotForward(&rbt) && noObstacle(currPos)) { // 현재 위치의 장애물이 없는 경우
             // time ++;
             // setNewDir 사용 안 함;
             // increase Trace[index].time;
             timePassed(&rbt);
         }
-        if (leftObstacle(currPos) && isRobotForward(&rbt)) { 
+        if (isRobotForward(&rbt) && leftObstacle(currPos)) {
             timePassed(&rbt);
         }
-        if (rightObstacle(currPos) && isRobotForward(&rbt)) { 
+        if (isRobotForward(&rbt) && rightObstacle(currPos)) {
             timePassed(&rbt);
         }
-        else if (frontLeftObstacle(currPos) && isRobotForward(&rbt)) {
+        else if (isRobotForward(&rbt) && frontLeftObstacle(currPos)) {
             // frontLeft가 없어질 때 까지 회전한 후, S/W로 turnRight()를 한번만 해야 Back상태로 가지 않음. 
 
             while (frontLeftObstacle(currPos)) {
@@ -130,7 +130,7 @@ int main(void) {
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-		else if (frontRightObstacle(currPos) && isRobotForward(&rbt)) {
+		else if (isRobotForward(&rbt) && frontRightObstacle(currPos)) {
             while (frontRightObstacle(currPos)) {
                 // Rotate Robot() : H/W
                 currPos++;
@@ -140,35 +140,35 @@ int main(void) {
             setNewDirectionToTrace(&rbt); // setTrace
         }
 
-		else if (leftObstacle(currPos) && isRobotRight(&rbt)) {
+		else if (isRobotRight(&rbt) && leftObstacle(currPos)) {
             // Go until noLeftObstacle;
             timePassed(&rbt);
         }
-        else if (rightObstacle(currPos) && isRobotLeft(&rbt)) {
+		else if (isRobotLeft(&rbt) && rightObstacle(currPos)) {
             // Go until noRightObstacle;
             timePassed(&rbt);
         }
-        else if (noObstacle(currPos) && isRobotLeft(&rbt)) {
+        else if (isRobotLeft(&rbt)&& noObstacle(currPos)) {
             timePassed(&rbt);
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-        else if (frontRightObstacle(currPos) && isRobotLeft(&rbt)) {
+        else if (isRobotLeft(&rbt)&& frontRightObstacle(currPos)) {
             timePassed(&rbt);
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-        else if (noObstacle(currPos) && isRobotRight(&rbt)) {
+		else if (isRobotRight(&rbt) && noObstacle(currPos)) {
             timePassed(&rbt);
             turnLeft(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-        else if (frontLeftObstacle(currPos) && isRobotRight(&rbt)) {
+		else if (isRobotRight(&rbt) && frontLeftObstacle(currPos)) {
             timePassed(&rbt);
             turnLeft(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-        else if (frontObstacle(currPos) && isRobotForward(&rbt)) {
+		else if (isRobotForward(&rbt) && frontObstacle(currPos)) {
             timePassed(&rbt);
             if (rbt.leftRight > 0) {
                 while (frontObstacle(currPos)) {
