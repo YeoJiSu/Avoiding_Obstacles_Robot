@@ -6,6 +6,7 @@
 #define GO 1
 #define STOP 0
 #define Arrival 17
+#define TESTSIZE 36 // 디버깅용으로 앞으로 자료추가는 여기 숫자만 고치면 됩니다!!
 
 typedef enum {
     BACK, LEFT, FORWARD, RIGHT
@@ -40,9 +41,9 @@ void turnRight(robot* rbt) {
 Trace trace2[arrSize] = { {FORWARD, 0}, };
 int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
-int exampleF[36] = { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
-int exampleL[36] = { 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,};
-int exampleR[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
+int exampleF[TESTSIZE] = { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
+int exampleL[TESTSIZE] = { 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,};
+int exampleR[TESTSIZE] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
 //                      if(o, Dirction == LEFT)
 
 void setNewDirectionToTrace(robot* rbt) {
@@ -101,24 +102,24 @@ int main(void) {
     // turnLeft(&rbt);
     // setNewDirectionToTrace(rbt_ptr);
 
-    for (int currPos = 0; currPos < 36; currPos++)
+    for (int currPos = 0; currPos < TESTSIZE; currPos++)
     {
         if (isRobotArrived(&rbt)) { // 도착지에 도착했으면 멈춰라 
             break;
         }
-        if (noObstacle(currPos) && isRobotForward(&rbt)) { // 현재 위치의 장애물이 없는 경우
+		if (isRobotForward(&rbt) && noObstacle(currPos)) { // 현재 위치의 장애물이 없는 경우
             // time ++;
             // setNewDir 사용 안 함;
             // increase Trace[index].time;
             timePassed(&rbt);
         }
-        if (leftObstacle(currPos) && isRobotForward(&rbt)) { 
+        if (isRobotForward(&rbt) && leftObstacle(currPos)) {
             timePassed(&rbt);
         }
-        if (rightObstacle(currPos) && isRobotForward(&rbt)) { 
+        if (isRobotForward(&rbt) && rightObstacle(currPos)) {
             timePassed(&rbt);
         }
-        else if (frontLeftObstacle(currPos) && isRobotForward(&rbt)) {
+        else if (isRobotForward(&rbt) && frontLeftObstacle(currPos)) {
             // frontLeft가 없어질 때 까지 회전한 후, S/W로 turnRight()를 한번만 해야 Back상태로 가지 않음. 
 
             while (frontLeftObstacle(currPos)) {
@@ -129,7 +130,7 @@ int main(void) {
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-		else if (frontRightObstacle(currPos) && isRobotForward(&rbt)) {
+		else if (isRobotForward(&rbt) && frontRightObstacle(currPos)) {
             while (frontRightObstacle(currPos)) {
                 // Rotate Robot() : H/W
                 currPos++;
@@ -139,35 +140,35 @@ int main(void) {
             setNewDirectionToTrace(&rbt); // setTrace
         }
 
-		else if (leftObstacle(currPos) && isRobotRight(&rbt)) {
+		else if (isRobotRight(&rbt) && leftObstacle(currPos)) {
             // Go until noLeftObstacle;
             timePassed(&rbt);
         }
-        else if (rightObstacle(currPos) && isRobotLeft(&rbt)) {
+		else if (isRobotLeft(&rbt) && rightObstacle(currPos)) {
             // Go until noRightObstacle;
             timePassed(&rbt);
         }
-        else if (noObstacle(currPos) && isRobotLeft(&rbt)) {
+        else if (isRobotLeft(&rbt)&& noObstacle(currPos)) {
             timePassed(&rbt);
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-        else if (frontRightObstacle(currPos) && isRobotLeft(&rbt)) {
+        else if (isRobotLeft(&rbt)&& frontRightObstacle(currPos)) {
             timePassed(&rbt);
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-        else if (noObstacle(currPos) && isRobotRight(&rbt)) {
+		else if (isRobotRight(&rbt) && noObstacle(currPos)) {
             timePassed(&rbt);
             turnLeft(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-        else if (frontLeftObstacle(currPos) && isRobotRight(&rbt)) {
+		else if (isRobotRight(&rbt) && frontLeftObstacle(currPos)) {
             timePassed(&rbt);
             turnLeft(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
-        else if (frontObstacle(currPos) && isRobotForward(&rbt)) {
+		else if (isRobotForward(&rbt) && frontObstacle(currPos)) {
             timePassed(&rbt);
             if (rbt.leftRight > 0) {
                 while (frontObstacle(currPos)) {
@@ -200,7 +201,7 @@ int main(void) {
         }
 
     }
-    for (int i = 0; i < 36; i++) {
+    for (int i = 0; i < TESTSIZE; i++) {
         if (rbt.trace[i].dir == LEFT) {
             printf("왼쪽으로 %d\n", rbt.trace[i].time);
         }
@@ -210,5 +211,5 @@ int main(void) {
         if (rbt.trace[i].dir == RIGHT) {
             printf("오른쪽으로 %d\n", rbt.trace[i].time);
         }
-  }
+    }
 }
