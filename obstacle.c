@@ -143,33 +143,30 @@ int main(void) {
 		else if (isRobotRight(&rbt) && leftObstacle(currPos)) {
             // Go until noLeftObstacle;
             timePassed(&rbt);
+            rbt.leftRight++;
         }
 		else if (isRobotLeft(&rbt) && rightObstacle(currPos)) {
             // Go until noRightObstacle;
             timePassed(&rbt);
+            rbt.leftRight--;
         }
         else if (isRobotLeft(&rbt)&& noObstacle(currPos)) {
-            timePassed(&rbt);
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
         else if (isRobotLeft(&rbt)&& frontRightObstacle(currPos)) {
-            timePassed(&rbt);
             turnRight(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
 		else if (isRobotRight(&rbt) && noObstacle(currPos)) {
-            timePassed(&rbt);
             turnLeft(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
 		else if (isRobotRight(&rbt) && frontLeftObstacle(currPos)) {
-            timePassed(&rbt);
             turnLeft(&rbt); // setStatus
             setNewDirectionToTrace(&rbt); // setTrace
         }
 		else if (isRobotForward(&rbt) && frontObstacle(currPos)) {
-            timePassed(&rbt);
             if (rbt.leftRight > 0) {
                 while (frontObstacle(currPos)) {
                     // Rotate Robot() : H/W -> 로봇을 왼쪽으로 돌리기 
@@ -191,15 +188,6 @@ int main(void) {
         if (isRobotForward(&rbt) && (noObstacle(currPos) || rightObstacle(currPos) || leftObstacle(currPos))) {
             rbt.forwardBackward++;
         }
-
-        // 좌우 변위 계산하기
-        if (isRobotRight(&rbt) && leftObstacle(currPos)) {
-            rbt.leftRight++;
-        }
-        if (isRobotLeft(&rbt) && rightObstacle(currPos)) {
-            rbt.leftRight--;
-        }
-
     }
     for (int i = 0; i < TESTSIZE; i++) {
         if (rbt.trace[i].dir == LEFT) {
