@@ -28,33 +28,11 @@ typedef struct robot {
     int leftRight; // 좌우 변위 (좌회전, 우회전 결정요소)
 }robot;
 
-void turnLeft(robot* rbt)
-{
-    rbt->direction -= 1;
-    if (rbt->direction < BACK)
-        rbt->direction = RIGHT;
-}
-
-void turnRight(robot* rbt) {
-    rbt->direction += 1;
-    if (rbt->direction > RIGHT)
-        rbt->direction = BACK;
-}
-
 Trace trace2[arrSize] = { {FORWARD, 0}, };
 int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
 clock_t start;
 clock_t end;
-
-void setNewDirectionToTrace(robot* rbt) {
-    end = clock();
-    rbt->trace[rbt_index].time = (int)(end - start);
-    rbt_index++;
-    rbt->trace[rbt_index].dir = rbt->direction;
-    rbt->trace[rbt_index].time = 0;
-    start = clock();
-}
 
 int main(void)
 {
