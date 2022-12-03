@@ -100,6 +100,10 @@ void NVIC_Configure(void)
 
 int main(void)
 {
+    RCC_Configure();
+    GPIO_Configure();
+    EXTI_Configure();
+
     struct robot rbt = { FORWARD, GO, trace2, 0, 0 }; // 로봇 상태 초기화;
     start = clock(); // 블루투스 모듈 작성시 수정해야함. 
 
