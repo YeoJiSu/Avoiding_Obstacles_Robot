@@ -21,11 +21,11 @@ typedef struct Trace {
 }Trace;
 
 typedef struct robot {
-    Direction direction; // Ãâ¹ßÁ¡ÀÇ ½Ã¾ß
-    bool isGo; // Á¤Áö ¶Ç´Â Ãâ¹ß
-    Trace* trace; // Áö³ª¿Â ±æ (MAP)
-    int forwardBackward; // ¾ÕµÚ º¯À§ (°á½ÂÁ¡±îÁö ³²Àº °Å¸®)
-    int leftRight; // ÁÂ¿ì º¯À§ (ÁÂÈ¸Àü, ¿ìÈ¸Àü °áÁ¤¿ä¼Ò)
+    Direction direction; // ì¶œë°œì ì˜ ì‹œì•¼
+    bool isGo; // ì •ì§€ ë˜ëŠ” ì¶œë°œ
+    Trace* trace; // ì§€ë‚˜ì˜¨ ê¸¸ (MAP)
+    int forwardBackward; // ì•ë’¤ ë³€ìœ„ (ê²°ìŠ¹ì ê¹Œì§€ ë‚¨ì€ ê±°ë¦¬)
+    int leftRight; // ì¢Œìš° ë³€ìœ„ (ì¢ŒíšŒì „, ìš°íšŒì „ ê²°ì •ìš”ì†Œ)
 }robot;
 
 void turnLeft(robot* rbt)
@@ -41,6 +41,14 @@ void turnRight(robot* rbt) {
         rbt->direction = BACK;
 }
 
+
+Trace trace2[arrSize] = { {FORWARD, 0}, };
+int rbt_index = 0; // ë¡œë´‡ ë°©í–¥ì´ ë°”ë€” ë•Œ ì¦ê°€í•˜ëŠ” index. ê²°êµ­ Trace ì €ì¥ìš©!
+
+clock_t start;
+clock_t end;
+
+
 void setNewDirectionToTrace(robot* rbt) {
     end = clock();
     rbt->trace[rbt_index].time = (int)(end - start);
@@ -49,12 +57,6 @@ void setNewDirectionToTrace(robot* rbt) {
     rbt->trace[rbt_index].time = 0;
     start = clock();
 }
-
-Trace trace2[arrSize] = { {FORWARD, 0}, };
-int rbt_index = 0; // ·Îº¿ ¹æÇâÀÌ ¹Ù²ğ ¶§ Áõ°¡ÇÏ´Â index. °á±¹ Trace ÀúÀå¿ë!
-
-clock_t start;
-clock_t end;
 
 bool leftOb() {
     return GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_14) == Bit_RESET;
@@ -113,12 +115,14 @@ bool isRobotArrived(robot* rbt) {
 }
 
 
+void Delay(vu32 cnt) {
+    for (; cnt != 0; cnt--);
+}
 
 void RCC_Configure(void) {
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 }
-
 void GPIO_Configure(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -131,6 +135,7 @@ void GPIO_Configure(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOE, &GPIO_InitStructure);
+
 }
 
 void EXTI_Configure(void) {
@@ -190,21 +195,23 @@ int main(void)
     GPIO_Configure();
     EXTI_Configure();
 
-    struct robot rbt = { FORWARD, GO, trace2, 0, 0 }; // ·Îº¿ »óÅÂ ÃÊ±âÈ­;
-    start = clock(); // ºí·çÅõ½º ¸ğµâ ÀÛ¼º½Ã ¼öÁ¤ÇØ¾ßÇÔ. 
+    struct robot rbt = { FORWARD, GO, trace2, 0, 0 }; // ë¡œë´‡ ìƒíƒœ ì´ˆê¸°í™”;
+    start = clock(); // ë¸”ë£¨íˆ¬ìŠ¤ ëª¨ë“ˆ ì‘ì„±ì‹œ ìˆ˜ì •í•´ì•¼í•¨. 
 
 
     while (1)
     {
 
-        if (isRobotArrived(&rbt)) { // µµÂøÁö¿¡ µµÂøÇßÀ¸¸é ¸ØÃç¶ó 
+        if (isRobotArrived(&rbt)) { // ë„ì°©ì§€ì— ë„ì°©í–ˆìœ¼ë©´ ë©ˆì¶°ë¼ 
+
             robotStop();
             break;
         }
 
-        if (isRobotForward(&rbt) && noObstacle()) { // ÇöÀç À§Ä¡ÀÇ Àå¾Ö¹°ÀÌ ¾ø´Â °æ¿ì
+
+        if (isRobotForward(&rbt) && noObstacle()) { // í˜„ì¬ ìœ„ì¹˜ì˜ ì¥ì• ë¬¼ì´ ì—†ëŠ” ê²½ìš°
             // time ++;
-            // setNewDir »ç¿ë ¾È ÇÔ;
+            // setNewDir ì‚¬ìš© ì•ˆ í•¨;
             // increase Trace[index].time;
             robotGo();
 
@@ -218,7 +225,8 @@ int main(void)
 
         }
         else if (isRobotForward(&rbt) && frontLeftObstacle()) {
-            // frontLeft°¡ ¾ø¾îÁú ¶§ ±îÁö È¸ÀüÇÑ ÈÄ, S/W·Î turnRight()¸¦ ÇÑ¹ø¸¸ ÇØ¾ß Back»óÅÂ·Î °¡Áö ¾ÊÀ½. 
+
+            // frontLeftê°€ ì—†ì–´ì§ˆ ë•Œ ê¹Œì§€ íšŒì „í•œ í›„, S/Wë¡œ turnRight()ë¥¼ í•œë²ˆë§Œ í•´ì•¼ Backìƒíƒœë¡œ ê°€ì§€ ì•ŠìŒ. 
             robotStop();
             robotTurnRight();
 
@@ -286,22 +294,23 @@ int main(void)
             setNewDirectionToTrace(&rbt); // setTrace
         }
 
-        // Á÷Áø º¯À§ °è»êÇÏ±â 
+        // ì§ì§„ ë³€ìœ„ ê³„ì‚°í•˜ê¸° 
+
         if (isRobotForward(&rbt) && (noObstacle() || rightObstacle() || leftObstacle())) {
             rbt.forwardBackward++;
         }
     }
 
-
     for (int i = 0; i < TESTSIZE; i++) {
         if (rbt.trace[i].dir == LEFT) {
-            printf("¿ŞÂÊÀ¸·Î %d\n", rbt.trace[i].time);
+            printf("ì™¼ìª½ìœ¼ë¡œ %d\n", rbt.trace[i].time);
         }
         if (rbt.trace[i].dir == FORWARD) {
-            printf("¾ÕÀ¸·Î %d\n", rbt.trace[i].time);
+            printf("ì•ìœ¼ë¡œ %d\n", rbt.trace[i].time);
         }
         if (rbt.trace[i].dir == RIGHT) {
-            printf("¿À¸¥ÂÊÀ¸·Î %d\n", rbt.trace[i].time);
+            printf("ì˜¤ë¥¸ìª½ìœ¼ë¡œ %d\n", rbt.trace[i].time);
+
         }
     }
 
