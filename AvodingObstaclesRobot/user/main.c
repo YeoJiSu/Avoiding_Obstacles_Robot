@@ -50,12 +50,68 @@ void setNewDirectionToTrace(robot* rbt) {
     start = clock();
 }
 
-
 Trace trace2[arrSize] = { {FORWARD, 0}, };
 int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
 clock_t start;
 clock_t end;
+
+bool leftOb() {
+    return GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_14) == Bit_RESET;
+}
+
+bool rightOb() {
+    return GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_13) == Bit_RESET;
+}
+
+bool frontOb() {
+    return GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12) == Bit_RESET;
+}
+
+bool noObstacle() {
+    return !frontOb() && !leftOb() && !rightOb();
+}
+
+bool frontLeftObstacle() {
+    return frontOb() && leftOb() && !rightOb();
+}
+
+bool frontRightObstacle() {
+    return frontOb() && !leftOb() && rightOb();
+}
+
+bool leftObstacle() {
+    return !frontOb() && leftOb() && !rightOb();
+}
+
+bool rightObstacle() {
+    return !frontOb() && !leftOb() && rightOb();
+}
+
+bool frontObstacle() {
+    return frontOb() && !leftOb() && !rightOb();
+}
+
+bool isRobotForward(robot* rbt) {
+    return rbt->direction == FORWARD;
+}
+
+bool isRobotLeft(robot* rbt) {
+    return rbt->direction == LEFT;
+}
+
+bool isRobotRight(robot* rbt) {
+    return rbt->direction == RIGHT;
+}
+
+bool isRobotBack(robot* rbt) {
+    return rbt->direction == BACK;
+}
+
+bool isRobotArrived(robot* rbt) {
+    return rbt->forwardBackward >= Arrival;
+}
+
 
 
 void RCC_Configure(void) {
