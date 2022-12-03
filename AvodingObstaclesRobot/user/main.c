@@ -1,88 +1,82 @@
 #include "stm32f10x.h"
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_exti.h"
 #include "stdio.h"
+#include <stdbool.h>
+#include <time.h>
 
-#define UP 0x20
-#define DOWN 0x4
-#define LEFT 0x8
-#define RIGHT 0x10
+#define arrSize 1000
+#define GO 1
+#define STOP 0
+#define Arrival 17
+#define TESTSIZE 36 
 
-// Enable Port REGISTER
-#define RCC_APB2ENR (*(volatile unsigned int*) 0x40021018)
+typedef enum {
+    BACK, LEFT, FORWARD, RIGHT
+}Direction;
 
-//  I/O MODE REGISTER
-#define GPIOC_CRL (*(volatile unsigned int *) 0x40011000)
-#define GPIOD_CRL (*(volatile unsigned int *) 0x40011400)
-#define GPIOD_CRH (*(volatile unsigned int *) 0x40011404)
+typedef struct Trace {
+    Direction dir;
+    int time;
+}Trace;
 
-// INPUT PORT 
-#define GPIOC_IDR (*(volatile unsigned int *) 0x40011008)
-#define GPIOD_IDR  (*(volatile unsigned int *) 0x40011408)
+typedef struct robot {
+    Direction direction; // 출발점의 시야
+    bool isGo; // 정지 또는 출발
+    Trace* trace; // 지나온 길 (MAP)
+    int forwardBackward; // 앞뒤 변위 (결승점까지 남은 거리)
+    int leftRight; // 좌우 변위 (좌회전, 우회전 결정요소)
+}robot;
 
-// OUTPUT PORT D
-#define GPIOD_BRR (*(volatile unsigned int *) 0x40011414)
-#define GPIOD_BSRR (*(volatile unsigned int *) 0x40011410)
+void turnLeft(robot* rbt)
+{
+    rbt->direction -= 1;
+    if (rbt->direction < BACK)
+        rbt->direction = RIGHT;
+}
 
-void Delay(vu32 cnt){
-  for(; cnt!=0; cnt--);
+void turnRight(robot* rbt) {
+    rbt->direction += 1;
+    if (rbt->direction > RIGHT)
+        rbt->direction = BACK;
+}
+
+Trace trace2[arrSize] = { {FORWARD, 0}, };
+int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
+
+clock_t start;
+clock_t end;
+
+void setNewDirectionToTrace(robot* rbt) {
+    end = clock();
+    rbt->trace[rbt_index].time = (int)(end - start);
+    rbt_index++;
+    rbt->trace[rbt_index].dir = rbt->direction;
+    rbt->trace[rbt_index].time = 0;
+    start = clock();
 }
 
 int main(void)
 {
-  // PORT D Enable
-  RCC_APB2ENR |= 0x20;
-  
-  // PORT C EN
-  RCC_APB2ENR |= 0x10;
-  
-  // PORT C Pull Up-Down: 초기화, Pin 설정
-  GPIOC_CRL &= !0x00FFFF00;
-  GPIOC_CRL |= 0x00888800;
-  
-  // PORT D Pull Up-Down: 초기화, Pin 설정
-  GPIOD_CRL &= ~0xFFFFFFFF;
-  GPIOD_CRL |= 0x33333333;
-  GPIOD_CRH &= ~0xFFFFFFFF;//0x000F0F00;
-  GPIOD_CRH |=  0x33333333;//0x00030300;
-  
-  // IDR 초기화
-  GPIOC_IDR &= 0x00000000;
-  GPIOD_IDR &= 0x00000000;
-  
-  // BSRR, BRR의 초기화
-  GPIOD_BSRR &= 0x00000000;
-  GPIOD_BRR &= 0x00000000;
-  
-  int count =0;
-  while(1){  
- 
-    if (!(GPIOC_IDR & 0x2000)) { // S5 TAMPER (PC13) 
+    struct robot rbt = { FORWARD, GO, trace2, 0, 0 }; // 로봇 상태 초기화;
+    start = clock(); // 블루투스 모듈 작성시 수정해야함. 
 
-      if (count==2) {
-        GPIOD_BRR |= 0x4000; //PD 14
-        GPIOD_BRR |=  0x2000; //PD 13 
-      }
-       else if (count==1) {
-          GPIOD_BSRR |= 0x4000; 
-          GPIOD_BSRR |=  0x2000; 
-       }
-    }
-
-      else if(!(GPIOC_IDR & UP) ) { 
-        count = 1;
-        GPIOD_BSRR |= 0x4000; //PD 14 set
-        GPIOD_BRR |=  0x2000; //PD 13 reset
-         
-       }
-       
-      else if(!(GPIOC_IDR & DOWN) ) { 
-        count =2;
-        GPIOD_BSRR |= 0x2000; //PD 13 set    
-        GPIOD_BRR |= 0x4000; //PD 14 reset 
-      }
     
-      Delay(1000);
+    /*
+    while(1){
+
+      if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12) == Bit_RESET)  {
+        GPIO_ResetBits(GPIOE, GPIO_Pin_8);
+        GPIO_SetBits(GPIOE, GPIO_Pin_9);
+
+      }
+      else {
+        GPIO_ResetBits(GPIOE, GPIO_Pin_9);
+        GPIO_SetBits(GPIOE, GPIO_Pin_8);
+      }
 
     }
-  
-  
+  */
+
+
 }
