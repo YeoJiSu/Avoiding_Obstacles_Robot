@@ -193,6 +193,105 @@ int main(void)
     struct robot rbt = { FORWARD, GO, trace2, 0, 0 }; // 로봇 상태 초기화;
     start = clock(); // 블루투스 모듈 작성시 수정해야함. 
 
+
+    while (1)
+    {
+
+        if (isRobotArrived(&rbt)) { // 도착지에 도착했으면 멈춰라 
+            robotStop();
+            break;
+        }
+
+        if (isRobotForward(&rbt) && noObstacle()) { // 현재 위치의 장애물이 없는 경우
+            // time ++;
+            // setNewDir 사용 안 함;
+            // increase Trace[index].time;
+            robotGo();
+
+        }
+        if (isRobotForward(&rbt) && leftObstacle()) {
+            robotGo();
+
+        }
+        if (isRobotForward(&rbt) && rightObstacle()) {
+            robotGo();
+
+        }
+        else if (isRobotForward(&rbt) && frontLeftObstacle()) {
+            // frontLeft가 없어질 때 까지 회전한 후, S/W로 turnRight()를 한번만 해야 Back상태로 가지 않음. 
+            robotStop();
+            robotTurnRight();
+
+            turnRight(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+        else if (isRobotForward(&rbt) && frontRightObstacle()) {
+            robotStop();
+            robotTurnLeft();
+
+            turnLeft(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+
+        else if (isRobotRight(&rbt) && leftObstacle()) {
+            // Go until noLeftObstacle;
+            robotGo();
+
+            rbt.leftRight++;
+        }
+        else if (isRobotLeft(&rbt) && rightObstacle()) {
+            // Go until noRightObstacle;
+            robotGo();
+
+            rbt.leftRight--;
+        }
+        else if (isRobotLeft(&rbt) && noObstacle()) {
+            robotStop();
+            robotTurnRight();
+
+            turnRight(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+        else if (isRobotLeft(&rbt) && frontRightObstacle()) {
+            robotStop();
+            robotTurnRight();
+
+            turnRight(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+        else if (isRobotRight(&rbt) && noObstacle()) {
+            robotStop();
+            robotTurnLeft();
+
+            turnLeft(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+        else if (isRobotRight(&rbt) && frontLeftObstacle()) {
+            robotStop();
+            robotTurnLeft();
+
+            turnLeft(&rbt); // setStatus
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+        else if (isRobotForward(&rbt) && frontObstacle()) {
+            robotStop();
+            if (rbt.leftRight > 0) {
+                robotTurnLeft();
+                turnLeft(&rbt); // setStatus
+            }
+            else {
+                robotTurnRight();
+                turnRight(&rbt); // setStatus
+            }
+            setNewDirectionToTrace(&rbt); // setTrace
+        }
+
+        // 직진 변위 계산하기 
+        if (isRobotForward(&rbt) && (noObstacle() || rightObstacle() || leftObstacle())) {
+            rbt.forwardBackward++;
+        }
+    }
+
     
     /*
     while(1){
