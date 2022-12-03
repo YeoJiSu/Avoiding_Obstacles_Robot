@@ -57,6 +57,47 @@ int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 clock_t start;
 clock_t end;
 
+
+void RCC_Configure(void) {
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+}
+
+void GPIO_Configure(void) {
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14;
+    GPIO_InitStructure.GPIO_Speed = 0;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+    GPIO_Init(GPIOE, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_Init(GPIOE, &GPIO_InitStructure);
+}
+
+void EXTI_Configure(void) {
+    EXTI_InitTypeDef EXTI_InitStructure;
+
+    GPIO_EXTILineConfig(GPIO_PortSourceGPIOE, GPIO_PinSource12);
+    EXTI_InitStructure.EXTI_Line = EXTI_Line12;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
+}
+
+/*
+void NVIC_Configure(void)
+{
+  NVIC_InitTypeDef NVIC_InitStructure;
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
+  NVIC_InitStructure,NVIC_IRQChannel = EXTI
+}
+*/
+
+
 int main(void)
 {
     struct robot rbt = { FORWARD, GO, trace2, 0, 0 }; // 로봇 상태 초기화;
