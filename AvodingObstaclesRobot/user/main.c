@@ -153,6 +153,36 @@ void NVIC_Configure(void)
 }
 */
 
+void robotStop() {
+    GPIO_ResetBits(GPIOE, GPIO_Pin_8);
+    GPIO_ResetBits(GPIOE, GPIO_Pin_9);
+    GPIO_ResetBits(GPIOE, GPIO_Pin_10);
+    GPIO_ResetBits(GPIOE, GPIO_Pin_11);
+}
+
+void robotGo() {
+    GPIO_ResetBits(GPIOE, GPIO_Pin_8);
+    GPIO_SetBits(GPIOE, GPIO_Pin_9);
+    GPIO_ResetBits(GPIOE, GPIO_Pin_10);
+    GPIO_SetBits(GPIOE, GPIO_Pin_11);
+}
+
+void robotTurnRight() {
+    GPIO_ResetBits(GPIOE, GPIO_Pin_8);
+    GPIO_SetBits(GPIOE, GPIO_Pin_9);
+    GPIO_SetBits(GPIOE, GPIO_Pin_10);
+    GPIO_ResetBits(GPIOE, GPIO_Pin_11);
+    Delay(1000);
+}
+
+void robotTurnLeft() {
+    GPIO_SetBits(GPIOE, GPIO_Pin_8);
+    GPIO_ResetBits(GPIOE, GPIO_Pin_9);
+    GPIO_ResetBits(GPIOE, GPIO_Pin_10);
+    GPIO_SetBits(GPIOE, GPIO_Pin_11);
+    Delay(1000);
+}
+
 
 int main(void)
 {
