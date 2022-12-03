@@ -292,7 +292,19 @@ int main(void)
         }
     }
 
-    
+
+    for (int i = 0; i < TESTSIZE; i++) {
+        if (rbt.trace[i].dir == LEFT) {
+            printf("왼쪽으로 %d\n", rbt.trace[i].time);
+        }
+        if (rbt.trace[i].dir == FORWARD) {
+            printf("앞으로 %d\n", rbt.trace[i].time);
+        }
+        if (rbt.trace[i].dir == RIGHT) {
+            printf("오른쪽으로 %d\n", rbt.trace[i].time);
+        }
+    }
+
     /*
     while(1){
 
