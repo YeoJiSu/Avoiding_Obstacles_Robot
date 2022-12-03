@@ -41,6 +41,16 @@ void turnRight(robot* rbt) {
         rbt->direction = BACK;
 }
 
+void setNewDirectionToTrace(robot* rbt) {
+    end = clock();
+    rbt->trace[rbt_index].time = (int)(end - start);
+    rbt_index++;
+    rbt->trace[rbt_index].dir = rbt->direction;
+    rbt->trace[rbt_index].time = 0;
+    start = clock();
+}
+
+
 Trace trace2[arrSize] = { {FORWARD, 0}, };
 int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
