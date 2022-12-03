@@ -41,11 +41,13 @@ void turnRight(robot* rbt) {
         rbt->direction = BACK;
 }
 
+
 Trace trace2[arrSize] = { {FORWARD, 0}, };
 int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
 clock_t start;
 clock_t end;
+
 
 void setNewDirectionToTrace(robot* rbt) {
     end = clock();
@@ -121,7 +123,6 @@ void RCC_Configure(void) {
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 }
-
 void GPIO_Configure(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -134,6 +135,7 @@ void GPIO_Configure(void) {
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOE, &GPIO_InitStructure);
+
 }
 
 void EXTI_Configure(void) {
@@ -186,6 +188,7 @@ void robotTurnLeft() {
     Delay(1000);
 }
 
+
 int main(void)
 {
     RCC_Configure();
@@ -195,13 +198,16 @@ int main(void)
     struct robot rbt = { FORWARD, GO, trace2, 0, 0 }; // 로봇 상태 초기화;
     start = clock(); // 블루투스 모듈 작성시 수정해야함. 
 
+
     while (1)
     {
 
         if (isRobotArrived(&rbt)) { // 도착지에 도착했으면 멈춰라 
+
             robotStop();
             break;
         }
+
 
         if (isRobotForward(&rbt) && noObstacle()) { // 현재 위치의 장애물이 없는 경우
             // time ++;
@@ -219,6 +225,7 @@ int main(void)
 
         }
         else if (isRobotForward(&rbt) && frontLeftObstacle()) {
+
             // frontLeft가 없어질 때 까지 회전한 후, S/W로 turnRight()를 한번만 해야 Back상태로 가지 않음. 
             robotStop();
             robotTurnRight();
@@ -288,6 +295,7 @@ int main(void)
         }
 
         // 직진 변위 계산하기 
+
         if (isRobotForward(&rbt) && (noObstacle() || rightObstacle() || leftObstacle())) {
             rbt.forwardBackward++;
         }
@@ -302,6 +310,7 @@ int main(void)
         }
         if (rbt.trace[i].dir == RIGHT) {
             printf("오른쪽으로 %d\n", rbt.trace[i].time);
+
         }
     }
 
