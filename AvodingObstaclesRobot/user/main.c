@@ -176,6 +176,34 @@ void NVIC_Configure(void)
 }
 */
 
+void USART1_Init(void) 
+{
+	USART_InitTypeDef USART1_InitStructure;
+	USART_Cmd(USART1, ENABLE);
+    USART1_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+    USART1_InitStructure.USART_BaudRate = 9600; 
+    USART1_InitStructure.USART_WordLength = USART_WordLength_8b;
+    USART1_InitStructure.USART_Parity = USART_Parity_No;
+    USART1_InitStructure.USART_StopBits = USART_StopBits_1;
+    USART1_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+    USART_Init(USART1, &USART1_InitStructure);
+    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+}
+
+void USART2_Init(void) 
+{
+	USART_InitTypeDef USART2_InitStructure;
+	USART_Cmd(USART2, ENABLE);
+    USART2_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+    USART2_InitStructure.USART_BaudRate = 9600;
+    USART2_InitStructure.USART_WordLength = USART_WordLength_8b;
+    USART2_InitStructure.USART_Parity = USART_Parity_No;
+    USART2_InitStructure.USART_StopBits = USART_StopBits_1;
+    USART2_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+    USART_Init(USART2, &USART2_InitStructure);
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+}
+
 void robotStop() {
     GPIO_ResetBits(GPIOE, GPIO_Pin_8);
     GPIO_ResetBits(GPIOE, GPIO_Pin_9);
