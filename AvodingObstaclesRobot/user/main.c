@@ -14,6 +14,17 @@
 #define Arrival 17
 #define TESTSIZE 36 
 
+/* function prototype */
+void RCC_Configure(void);
+void GPIO_Configure(void);
+void EXTI_Configure(void);
+void NVIC_Configure(void);
+void USART1_Init(void);
+void USART2_Init(void);
+void USART1_IRQHandler();
+void USART2_IRQHandler();
+void sendDataUART1(uint16_t data);
+void sendDataUART2(uint16_t data);
 typedef enum {
     BACK, LEFT, FORWARD, RIGHT
 }Direction;
@@ -278,6 +289,9 @@ int main(void)
     RCC_Configure();
     GPIO_Configure();
     EXTI_Configure();
+    USART1_Init();
+    USART2_Init();
+    NVIC_Configure();
 
     struct robot rbt = { FORWARD, GO, trace2, 0, 0 }; // 로봇 상태 초기화;
     start = clock(); // 블루투스 모듈 작성시 수정해야함. 
