@@ -167,14 +167,26 @@ void EXTI_Configure(void) {
     EXTI_Init(&EXTI_InitStructure);
 }
 
-/*
-void NVIC_Configure(void)
-{
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
-  NVIC_InitStructure,NVIC_IRQChannel = EXTI
+void NVIC_Configure(void) { 
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
+
+    // UART1 에 대한 우선순위 
+    NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    NVIC_EnableIRQ(USART1_IRQn);
+
+    // UART2 에 대한 우선순위 
+    NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    NVIC_EnableIRQ(USART2_IRQn);
 }
-*/
 
 void USART1_Init(void) 
 {
@@ -202,6 +214,32 @@ void USART2_Init(void)
     USART2_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_Init(USART2, &USART2_InitStructure);
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+}
+
+void USART1_IRQHandler() { 
+	uint16_t word;
+    if(USART_GetITStatus(USART1,USART_IT_RXNE)!=RESET){
+        word = USART_ReceiveData(USART1);
+        USART_SendData(USART2, word);
+    	USART_ClearITPendingBit(USART1,USART_IT_RXNE);
+    }
+}
+
+void USART2_IRQHandler() { 
+	uint16_t word;
+    if(USART_GetITStatus(USART2,USART_IT_RXNE)!=RESET){
+        word = USART_ReceiveData(USART2);
+        USART_SendData(USART1, word);
+    	USART_ClearITPendingBit(USART2,USART_IT_RXNE);
+    }
+}
+
+void sendDataUART1(uint16_t data) { 
+	USART_SendData(USART1, data);
+}
+
+void sendDataUART2(uint16_t data) { 
+	USART_SendData(USART2, data);
 }
 
 void robotStop() {
