@@ -1,6 +1,9 @@
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_exti.h"
+#include "stm32f10x_usart.h"
+#include "stm32f10x_rcc.h"
+#include "misc.h"
 #include "stdio.h"
 #include <stdbool.h>
 #include <time.h>
@@ -120,9 +123,12 @@ void Delay(vu32 cnt) {
 }
 
 void RCC_Configure(void) {
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOA | RCC_APB2Periph_USART1, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+    /* UART 2 enable */
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 }
+
 void GPIO_Configure(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -136,6 +142,18 @@ void GPIO_Configure(void) {
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOE, &GPIO_InitStructure);
 
+     /* UART pin setting */ 
+    //TX, Output
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_9; // UART2 and UART1 for TX
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    
+    //RX, Input
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_10;  // UART2 and UART1 for RX
+    GPIO_InitStructure.GPIO_Speed = 0;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
 void EXTI_Configure(void) {
