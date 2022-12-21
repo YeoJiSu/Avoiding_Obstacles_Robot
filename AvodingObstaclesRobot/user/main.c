@@ -19,12 +19,11 @@ void RCC_Configure(void);
 void GPIO_Configure(void);
 void EXTI_Configure(void);
 void NVIC_Configure(void);
-void USART1_Init(void);
 void USART2_Init(void);
-void USART1_IRQHandler();
 void USART2_IRQHandler();
 void sendDataUART1(uint16_t data);
 void sendDataUART2(uint16_t data);
+
 typedef enum {
     BACK, LEFT, FORWARD, RIGHT
 }Direction;
@@ -42,6 +41,29 @@ typedef struct robot {
     int leftRight; // 좌우 변위 (좌회전, 우회전 결정요소)
 }robot;
 
+void turnLeft(robot* rbt);
+void turnRight(robot* rbt);
+void setNewDirectionToTrace(robot* rbt);
+bool leftOb();
+bool rightOb();
+bool frontOb();
+bool noObstacle();
+bool frontLeftObstacle();
+bool frontRightObstacle();
+bool leftObstacle();
+bool rightObstacle();
+bool frontObstacle();
+bool isRobotForward(robot* rbt);
+bool isRobotLeft(robot* rbt);
+bool isRobotRight(robot* rbt);
+bool isRobotBack(robot* rbt);
+bool isRobotArrived(robot* rbt);
+void robotStop();
+void robotGo();
+void robotTurnRight();
+void robotTurnLeft();
+void delay();
+
 void turnLeft(robot* rbt)
 {
     rbt->direction -= 1;
@@ -55,33 +77,31 @@ void turnRight(robot* rbt) {
         rbt->direction = BACK;
 }
 
-
 Trace trace2[arrSize] = { {FORWARD, 0}, };
 int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
 clock_t start;
 clock_t end;
 
-
 void setNewDirectionToTrace(robot* rbt) {
     end = clock();
     rbt->trace[rbt_index].time = (int)(end - start);
-    rbt_index++;
+
     rbt->trace[rbt_index].dir = rbt->direction;
     rbt->trace[rbt_index].time = 0;
     start = clock();
 }
 
 bool leftOb() {
-    return GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_14) == Bit_RESET;
+    return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4) == Bit_RESET;
 }
 
 bool rightOb() {
-    return GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_13) == Bit_RESET;
+    return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_3) == Bit_RESET;
 }
 
 bool frontOb() {
-    return GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12) == Bit_RESET;
+    return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2) == Bit_RESET;
 }
 
 bool noObstacle() {
@@ -128,67 +148,84 @@ bool isRobotArrived(robot* rbt) {
     return rbt->forwardBackward >= Arrival;
 }
 
+void Delay(void) {
+	int i;
 
-void Delay(vu32 cnt) {
-    for (; cnt != 0; cnt--);
+	for (i = 0; i < 10000000; i++) {}
 }
 
+void robotStop() {
+    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_9);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_10);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_11);
+}
+
+void robotGo() {
+    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+    GPIO_SetBits(GPIOC, GPIO_Pin_9);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_10);
+    GPIO_SetBits(GPIOC, GPIO_Pin_11);
+}
+
+void robotTurnRight() {
+    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+    GPIO_SetBits(GPIOC, GPIO_Pin_9);
+    GPIO_SetBits(GPIOC, GPIO_Pin_10);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_11);
+    Delay();
+}
+
+void robotTurnLeft() {
+    GPIO_SetBits(GPIOC, GPIO_Pin_8);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_9);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_10);
+    GPIO_SetBits(GPIOC, GPIO_Pin_11);
+    Delay();
+}
+
+
 void RCC_Configure(void) {
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOA | RCC_APB2Periph_USART1, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOA, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
     /* UART 2 enable */
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+    /* TIM 2 enable */
+    //RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 }
 
 void GPIO_Configure(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4;
     GPIO_InitStructure.GPIO_Speed = 0;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-    GPIO_Init(GPIOE, &GPIO_InitStructure);
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
 
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(GPIOE, &GPIO_InitStructure);
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
 
      /* UART pin setting */ 
     //TX, Output
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_9; // UART2 and UART1 for TX
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 ; // UART2 and UART1 for TX
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     
     //RX, Input
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_10;  // UART2 and UART1 for RX
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 ;  // UART2 and UART1 for RX
     GPIO_InitStructure.GPIO_Speed = 0;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
-void EXTI_Configure(void) {
-    EXTI_InitTypeDef EXTI_InitStructure;
-
-    GPIO_EXTILineConfig(GPIO_PortSourceGPIOE, GPIO_PinSource12);
-    EXTI_InitStructure.EXTI_Line = EXTI_Line12;
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init(&EXTI_InitStructure);
-}
+FunctionalState isGo = DISABLE;
 
 void NVIC_Configure(void) { 
     NVIC_InitTypeDef NVIC_InitStructure;
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
-
-    // UART1 에 대한 우선순위 
-    NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    NVIC_EnableIRQ(USART1_IRQn);
 
     // UART2 에 대한 우선순위 
     NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
@@ -199,24 +236,10 @@ void NVIC_Configure(void) {
     NVIC_EnableIRQ(USART2_IRQn);
 }
 
-void USART1_Init(void) 
-{
-	USART_InitTypeDef USART1_InitStructure;
-	USART_Cmd(USART1, ENABLE);
-    USART1_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-    USART1_InitStructure.USART_BaudRate = 9600; 
-    USART1_InitStructure.USART_WordLength = USART_WordLength_8b;
-    USART1_InitStructure.USART_Parity = USART_Parity_No;
-    USART1_InitStructure.USART_StopBits = USART_StopBits_1;
-    USART1_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_Init(USART1, &USART1_InitStructure);
-    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
-}
-
 void USART2_Init(void) 
 {
-	USART_InitTypeDef USART2_InitStructure;
-	USART_Cmd(USART2, ENABLE);
+    USART_InitTypeDef USART2_InitStructure;
+    USART_Cmd(USART2, ENABLE);
     USART2_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
     USART2_InitStructure.USART_BaudRate = 9600;
     USART2_InitStructure.USART_WordLength = USART_WordLength_8b;
@@ -224,103 +247,77 @@ void USART2_Init(void)
     USART2_InitStructure.USART_StopBits = USART_StopBits_1;
     USART2_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_Init(USART2, &USART2_InitStructure);
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
-}
-
-void USART1_IRQHandler() { 
-	uint16_t word;
-    if(USART_GetITStatus(USART1,USART_IT_RXNE)!=RESET){
-        word = USART_ReceiveData(USART1);
-        USART_SendData(USART2, word);
-    	USART_ClearITPendingBit(USART1,USART_IT_RXNE);
-    }
+    USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
 }
 
 void USART2_IRQHandler() { 
-	uint16_t word;
+    uint16_t word;
     if(USART_GetITStatus(USART2,USART_IT_RXNE)!=RESET){
         word = USART_ReceiveData(USART2);
-        USART_SendData(USART1, word);
+        if (word=='g'){
+            isGo = ENABLE;
+        }
+        if (word=='s'){
+            isGo = DISABLE;
+        }
+        // USART_SendData(USART2, word);
     	USART_ClearITPendingBit(USART2,USART_IT_RXNE);
     }
 }
 
-void sendDataUART1(uint16_t data) { 
-	USART_SendData(USART1, data);
+/*
+void TIM_Configure(void)
+{
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+    TIM_TimeBaseStructure.TIM_Period = 1200;
+    TIM_TimeBaseStructure.TIM_Prescaler = 60000;
+    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Down;
+    
+    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+    
+    TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Disable);
+    TIM_ARRPreloadConfig(TIM2, ENABLE);
+    TIM_Cmd(TIM2, ENABLE);
+    TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 }
-
+*/
 void sendDataUART2(uint16_t data) { 
 	USART_SendData(USART2, data);
 }
-
-void robotStop() {
-    GPIO_ResetBits(GPIOE, GPIO_Pin_8);
-    GPIO_ResetBits(GPIOE, GPIO_Pin_9);
-    GPIO_ResetBits(GPIOE, GPIO_Pin_10);
-    GPIO_ResetBits(GPIOE, GPIO_Pin_11);
-}
-
-void robotGo() {
-    GPIO_ResetBits(GPIOE, GPIO_Pin_8);
-    GPIO_SetBits(GPIOE, GPIO_Pin_9);
-    GPIO_ResetBits(GPIOE, GPIO_Pin_10);
-    GPIO_SetBits(GPIOE, GPIO_Pin_11);
-}
-
-void robotTurnRight() {
-    GPIO_ResetBits(GPIOE, GPIO_Pin_8);
-    GPIO_SetBits(GPIOE, GPIO_Pin_9);
-    GPIO_SetBits(GPIOE, GPIO_Pin_10);
-    GPIO_ResetBits(GPIOE, GPIO_Pin_11);
-    Delay(1000);
-}
-
-void robotTurnLeft() {
-    GPIO_SetBits(GPIOE, GPIO_Pin_8);
-    GPIO_ResetBits(GPIOE, GPIO_Pin_9);
-    GPIO_ResetBits(GPIOE, GPIO_Pin_10);
-    GPIO_SetBits(GPIOE, GPIO_Pin_11);
-    Delay(1000);
-}
-
 
 int main(void)
 {
     RCC_Configure();
     GPIO_Configure();
-    EXTI_Configure();
-    USART1_Init();
     USART2_Init();
     NVIC_Configure();
 
     struct robot rbt = { FORWARD, GO, trace2, 0, 0 }; // 로봇 상태 초기화;
     start = clock(); // 블루투스 모듈 작성시 수정해야함. 
 
-
+    
     while (1)
     {
-
-        if (isRobotArrived(&rbt)) { // 도착지에 도착했으면 멈춰라 
-
-            robotStop();
-            break;
+       while (1){
+            if (isGo == ENABLE){
+                robotGo();
+                break;
+            }
+            
+            if (isGo == DISABLE){
+               robotStop();
+            }
         }
 
-
-        if (isRobotForward(&rbt) && noObstacle()) { // 현재 위치의 장애물이 없는 경우
-            // time ++;
-            // setNewDir 사용 안 함;
-            // increase Trace[index].time;
+        if (isRobotForward(&rbt) && noObstacle()) {
             robotGo();
-
         }
-        if (isRobotForward(&rbt) && leftObstacle()) {
+        else if (isRobotForward(&rbt) && leftObstacle()) {
             robotGo();
-
         }
-        if (isRobotForward(&rbt) && rightObstacle()) {
+        else if (isRobotForward(&rbt) && rightObstacle()) {
             robotGo();
-
         }
         else if (isRobotForward(&rbt) && frontLeftObstacle()) {
 
@@ -391,12 +388,12 @@ int main(void)
             }
             setNewDirectionToTrace(&rbt); // setTrace
         }
+        else{
+            robotGo();
+        }
 
         // 직진 변위 계산하기 
 
-        if (isRobotForward(&rbt) && (noObstacle() || rightObstacle() || leftObstacle())) {
-            rbt.forwardBackward++;
-        }
     }
 
     for (int i = 0; i < TESTSIZE; i++) {
@@ -411,22 +408,6 @@ int main(void)
 
         }
     }
-
-    /*
-    while(1){
-
-      if (GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12) == Bit_RESET)  {
-        GPIO_ResetBits(GPIOE, GPIO_Pin_8);
-        GPIO_SetBits(GPIOE, GPIO_Pin_9);
-
-      }
-      else {
-        GPIO_ResetBits(GPIOE, GPIO_Pin_9);
-        GPIO_SetBits(GPIOE, GPIO_Pin_8);
-      }
-
-    }
-  */
-
-
+    
+   return 0;
 }
