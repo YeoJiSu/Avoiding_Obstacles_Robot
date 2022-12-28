@@ -7,6 +7,7 @@
 #include "stdio.h"
 #include "core_cm3.h"
 #include "lcd.h"
+#include "obstacle.h"
 #include <stdbool.h>
 #include <time.h>
 
@@ -51,16 +52,7 @@ void turnRight(robot* rbt);
 void setNewDirectionToTrace(robot* rbt);
 void turn_Head_To_End(robot* rbt);
 void ShowDirection(robot* rbt);
-bool leftOb();
-bool rightOb();
-bool frontOb();
-bool noObstacle();
-bool frontLeftObstacle();
-bool frontRightObstacle();
-bool leftObstacle();
-bool rightObstacle();
-bool frontObstacle();
-bool leftRightObstacle();
+
 bool isRobotForward(robot* rbt);
 bool isRobotLeft(robot* rbt);
 bool isRobotRight(robot* rbt);
@@ -156,43 +148,7 @@ void setNewDirectionToTrace(robot* rbt) {
     start = clock();
 }
 
-bool leftOb() {
-    return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4) == Bit_RESET;
-}
 
-bool rightOb() {
-    return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_3) == Bit_RESET;
-}
-
-bool frontOb() {
-    return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2) == Bit_RESET;
-}
-
-bool noObstacle() {
-    return !frontOb() && !leftOb() && !rightOb();
-}
-
-bool frontLeftObstacle() {
-    return frontOb() && leftOb() && !rightOb();
-}
-
-bool frontRightObstacle() {
-    return frontOb() && !leftOb() && rightOb();
-}
-
-bool leftObstacle() {
-    return !frontOb() && leftOb() && !rightOb();
-}
-
-bool rightObstacle() {
-    return !frontOb() && !leftOb() && rightOb();
-}
-bool leftRightObstacle() {
-    return !frontOb() && leftOb() && rightOb();
-}
-bool frontObstacle() {
-    return frontOb() && !leftOb() && !rightOb();
-}
 
 bool isRobotForward(robot* rbt) {
     return rbt->direction == FORWARD;
