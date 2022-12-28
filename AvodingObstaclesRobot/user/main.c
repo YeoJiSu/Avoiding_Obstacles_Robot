@@ -16,10 +16,11 @@
 #define LCD_WIDTH_SIZE 240
 #define LCD_LENGTH_SIZE 310
 #define LCD_MID ((LCD_WIDTH_SIZE / 2) * ROBOT_TRACE_SPEED)
-#define Arrival (LCD_LENGTH_SIZE * ROBOT_TRACE_SPEED)
 
-#define ROTATE_DELAY 14000000
-#define SHORT_DELAY 100000
+#define ARRIVAL (LCD_LENGTH_SIZE * ROBOT_TRACE_SPEED)
+
+#define ROTATE_90DEG_DLY 14000000
+#define SHORT_DLY 100000
 
 typedef struct robot {
     Direction direction; // 출발점의 시야
@@ -31,60 +32,55 @@ typedef struct robot {
 
 /* function definition */
 
-void turnLeft(robot* rbt);
-void turnRight(robot* rbt);
-void turn_Head_To_End(robot* rbt);
+void ROBOT_ROTATE_DIR_L(robot* rbt);
+void ROBOT_ROTATE_DIR_R(robot* rbt);
 
-bool isRobotForward(robot* rbt);
-bool isRobotLeft(robot* rbt);
-bool isRobotRight(robot* rbt);
-bool isRobotBack(robot* rbt);
-bool isRobotArrived(robot* rbt);
+bool rbt_dir_FW(robot* rbt);
+bool rbt_dir_B(robot* rbt);
+bool rbt_dir_L(robot* rbt);
+bool rbt_dir_R(robot* rbt);
 
-void robotStop();
-void robotGo(robot* rbt);
-void robotTurnRight(robot* rbt);
-void robotTurnLeft(robot* rbt);
+void ROBOT_STOP();
+void ROBOT_GO(robot* rbt);
+void ROBOT_TURN_R(robot* rbt);
+void ROBOT_TURN_L(robot* rbt);
+void ROBOT_TURN_HEAD_TO_END(robot* rbt);
 
 void Delay(int value);
-void Show_LCD_msg_Arrived(void);
+void show_LCD_msg_Arrived(void);
+bool isRobotArrived(robot* rbt);
 
-void turnLeft(robot* rbt)
-{
+void ROBOT_ROTATE_DIR_L(robot* rbt) {
     rbt->direction -= 1;
     if (rbt->direction < BACK)
         rbt->direction = RIGHT;
 }
 
-void turnRight(robot* rbt) {
+void ROBOT_ROTATE_DIR_R(robot* rbt) {
     rbt->direction += 1;
     if (rbt->direction > RIGHT)
         rbt->direction = BACK;
 }
 
-void turn_Head_To_End(robot* rbt) {
+void ROBOT_TURN_HEAD_TO_END(robot* rbt) {
     if (rbt->LR > LCD_MID) {
-        robotTurnRight(rbt);
-        turnRight(rbt);
+        ROBOT_TURN_R(rbt);
     }
     else if (rbt->LR < LCD_MID) {
-        robotTurnLeft(rbt);
-        turnLeft(rbt);
+        ROBOT_TURN_L(rbt);
     }
     else {}
     while (rbt->LR != LCD_MID) {
-        robotGo(rbt);
+        ROBOT_GO(rbt);
     }
 
     switch (rbt->direction) {
     case LEFT:
-        robotTurnRight(rbt);
-        turnRight(rbt);
+        ROBOT_TURN_R(rbt);
         break;
 
     case RIGHT:
-        robotTurnLeft(rbt);
-        turnLeft(rbt);
+        ROBOT_TURN_L(rbt);
         break;
 
     default:
@@ -95,24 +91,24 @@ void turn_Head_To_End(robot* rbt) {
 robot_trace_array[arrSize] = { {FORWARD, 0, LCD_MID, 0}, };
 trace_index = 0; 
 
-bool isRobotForward(robot* rbt) {
+bool rbt_dir_FW(robot* rbt) {
     return rbt->direction == FORWARD;
 }
 
-bool isRobotLeft(robot* rbt) {
+bool rbt_dir_L(robot* rbt) {
     return rbt->direction == LEFT;
 }
 
-bool isRobotRight(robot* rbt) {
+bool rbt_dir_R(robot* rbt) {
     return rbt->direction == RIGHT;
 }
 
-bool isRobotBack(robot* rbt) {
+bool rbt_dir_B(robot* rbt) {
     return rbt->direction == BACK;
 }
 
 bool isRobotArrived(robot* rbt) {
-    return rbt->FB >= Arrival;
+    return rbt->FB >= ARRIVAL;
 }
 
 void Delay(int value) {
@@ -120,11 +116,11 @@ void Delay(int value) {
     for (i = 0; i < value; i++) {}
 }
 
-void robotStop() {
+void ROBOT_STOP() {
     MOTOR_SET_STOP();
 }
 
-void robotGo(robot* rbt) {
+void ROBOT_GO(robot* rbt) {
     MOTOR_SET_GO();
     switch (rbt->direction) {
     case FORWARD:
@@ -145,20 +141,22 @@ void robotGo(robot* rbt) {
     Record_LCD_Robot_Trace(rbt);
 }
 
-void robotTurnRight(robot* rbt) {
+void ROBOT_TURN_R(robot* rbt) {
     MOTOR_SET_TURN_RIGHT();
-    Delay(ROTATE_DELAY);
-    robotGo(rbt);
-    Delay(SHORT_DELAY);
+    Delay(ROTATE_90DEG_DLY);
+    ROBOT_GO(rbt);
+    Delay(SHORT_DLY);
+    ROBOT_ROTATE_DIR_R(rbt);
 }
 
-void robotTurnLeft(robot* rbt) {
+void ROBOT_TURN_L(robot* rbt) {
     MOTOR_SET_TURN_LEFT();
-    Delay(ROTATE_DELAY);
-    robotGo(rbt);
-    Delay(SHORT_DELAY);
+    Delay(ROTATE_90DEG_DLY);
+    ROBOT_GO(rbt);
+    Delay(SHORT_DLY);
+    ROBOT_ROTATE_DIR_L(rbt);
 }
-void Show_LCD_msg_Arrived(void) {
+void show_LCD_msg_Arrived(void) {
     LCD_ShowString(120, 300, "ARRIVED", BLUE, YELLOW);
 }
 
@@ -176,135 +174,113 @@ int main(void)
 
     LCD_ShowString(1, 1, "START", BLUE, WHITE);
 
-    while (1)
-    {
+    while (1) {
         if (isRobotArrived(&rbt)) { // 도착지에 도착했으면 멈춰라 
-            robotStop();
+            ROBOT_STOP();
             Delay(1000000);
             break;
         }
 
         while (1) {
             if (isGo == ENABLE) {
-                robotGo(&rbt);
+                ROBOT_GO(&rbt);
                 break;
             }
 
             if (isGo == DISABLE) {
-                robotStop();
+                ROBOT_STOP();
             }
         }
 
-        if (isRobotForward(&rbt) && noObstacle()) {
-            robotGo(&rbt);
-
+        if (rbt_dir_FW(&rbt) && noObstacle()) {
+            ROBOT_GO(&rbt);
         }
-        else if (isRobotForward(&rbt) && leftRightObstacle()) {
+        else if (rbt_dir_FW(&rbt) && leftRightObstacle()) {
             Show_LCD_Obstacle_LEFT(&rbt);
             Show_LCD_Obstacle_RIGHT(&rbt);
-            robotGo(&rbt);
+            ROBOT_GO(&rbt);
         }
-        else if (isRobotForward(&rbt) && leftObstacle()) {
+        else if (rbt_dir_FW(&rbt) && leftObstacle()) {
             Show_LCD_Obstacle_LEFT(&rbt);
-            robotGo(&rbt);
-
+            ROBOT_GO(&rbt);
         }
-        else if (isRobotForward(&rbt) && rightObstacle()) {
+        else if (rbt_dir_FW(&rbt) && rightObstacle()) {
             Show_LCD_Obstacle_RIGHT(&rbt);
-            robotGo(&rbt);
+            ROBOT_GO(&rbt);
         }
-        else if (isRobotForward(&rbt) && frontLeftObstacle()) {
-            //Show_LCD_Obstacle_LEFT(&rbt);
+        else if (rbt_dir_FW(&rbt) && frontLeftObstacle()) {
             Show_LCD_Obstacle_FORWARD(&rbt);
-            // frontLeft가 없어질 때 까지 회전한 후, S/W로 turnRight()를 한번만 해야 Back상태로 가지 않음. 
-            robotStop();
-            robotTurnRight(&rbt);
 
-            turnRight(&rbt); // setStatus
+            ROBOT_STOP();
+            ROBOT_TURN_R(&rbt);
             Record_Trace_Array(&rbt); // setTrace
         }
-        else if (isRobotForward(&rbt) && frontRightObstacle()) {
+        else if (rbt_dir_FW(&rbt) && frontRightObstacle()) {
             //Show_LCD_Obstacle_RIGHT(&rbt);
             Show_LCD_Obstacle_FORWARD(&rbt);
-            robotStop();
-            robotTurnLeft(&rbt);
-
-            turnLeft(&rbt); // setStatus
+            ROBOT_STOP();
+            ROBOT_TURN_L(&rbt);
             Record_Trace_Array(&rbt); // setTrace
         }
-        else if (isRobotRight(&rbt) && leftRightObstacle()) {
+        else if (rbt_dir_R(&rbt) && leftRightObstacle()) {
             Show_LCD_Obstacle_LEFT(&rbt);
             Show_LCD_Obstacle_RIGHT(&rbt);
-            robotGo(&rbt);
+            ROBOT_GO(&rbt);
         }
-        else if (isRobotRight(&rbt) && leftObstacle()) {
+        else if (rbt_dir_R(&rbt) && leftObstacle()) {
             Show_LCD_Obstacle_LEFT(&rbt);
-            // Go until noLeftObstacle;
-            robotGo(&rbt);
+            ROBOT_GO(&rbt);
         }
-        else if (isRobotLeft(&rbt) && leftRightObstacle()) {
+        else if (rbt_dir_L(&rbt) && leftRightObstacle()) {
             Show_LCD_Obstacle_LEFT(&rbt);
             Show_LCD_Obstacle_RIGHT(&rbt);
-            robotGo(&rbt);
+            ROBOT_GO(&rbt);
         }
-        else if (isRobotLeft(&rbt) && rightObstacle()) {
+        else if (rbt_dir_L(&rbt) && rightObstacle()) {
             Show_LCD_Obstacle_RIGHT(&rbt);
-            // Go until noRightObstacle;
-            robotGo(&rbt);
+            ROBOT_GO(&rbt);
         }
-        else if (isRobotLeft(&rbt) && noObstacle()) {
-            robotStop();
-            robotTurnRight(&rbt);
-            turnRight(&rbt); // setStatus
+        else if (rbt_dir_L(&rbt) && noObstacle()) {
+            ROBOT_STOP();
+            ROBOT_TURN_R(&rbt);
             Record_Trace_Array(&rbt); // setTrace
         }
-        else if (isRobotLeft(&rbt) && frontRightObstacle()) {
-            //Show_LCD_Obstacle_RIGHT(&rbt);
+        else if (rbt_dir_L(&rbt) && frontRightObstacle()) {
             Show_LCD_Obstacle_FORWARD(&rbt);
-            robotStop();
-            robotTurnRight(&rbt);
-
-            turnRight(&rbt); // setStatus
+            ROBOT_STOP();
+            ROBOT_TURN_R(&rbt);
             Record_Trace_Array(&rbt); // setTrace
         }
-        else if (isRobotRight(&rbt) && noObstacle()) {
-            robotStop();
-            robotTurnLeft(&rbt);
-
-            turnLeft(&rbt); // setStatus
+        else if (rbt_dir_R(&rbt) && noObstacle()) {
+            ROBOT_STOP();
+            ROBOT_TURN_L(&rbt);
             Record_Trace_Array(&rbt); // setTrace
         }
-        else if (isRobotRight(&rbt) && frontLeftObstacle()) {
-            //Show_LCD_Obstacle_LEFT(&rbt);
+        else if (rbt_dir_R(&rbt) && frontLeftObstacle()) {
             Show_LCD_Obstacle_FORWARD(&rbt);
-            robotStop();
-            robotTurnLeft(&rbt);
-
-            turnLeft(&rbt); // setStatus
+            ROBOT_STOP();
+            ROBOT_TURN_L(&rbt);
             Record_Trace_Array(&rbt); // setTrace
         }
-        else if (isRobotForward(&rbt) && frontObstacle()) {
+        else if (rbt_dir_FW(&rbt) && frontObstacle()) {
             Show_LCD_Obstacle_FORWARD(&rbt);
-            robotStop();
+            ROBOT_STOP();
             if (rbt.LR > LCD_MID) {
-                robotTurnLeft(&rbt);
-                turnLeft(&rbt); // setStatus
+                ROBOT_TURN_L(&rbt);
             }
             else {
-                robotTurnRight(&rbt);
-                turnRight(&rbt); // setStatus
+                ROBOT_TURN_R(&rbt);
             }
             Record_Trace_Array(&rbt); // setTrace
         }
         else {
-            robotGo(&rbt);
+            ROBOT_GO(&rbt);
         }
     }
 
-    turn_Head_To_End(&rbt);
-
-    robotStop();
-    Show_LCD_msg_Arrived();
+    ROBOT_TURN_HEAD_TO_END(&rbt);
+    ROBOT_STOP();
+    show_LCD_msg_Arrived();
 
     return 0;
 }
