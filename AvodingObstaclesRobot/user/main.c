@@ -8,18 +8,18 @@
 #include "core_cm3.h"
 #include "lcd.h"
 #include "obstacle.h"
+#include "trace.h"
 #include <stdbool.h>
 #include <time.h>
 
-#define arrSize 1000
 #define GO 1
 #define STOP 0
-#define LCD_SPEED 10
 #define OBSTACLE_DST 5
-#define LCD_MID (120 * LCD_SPEED)
-#define Arrival (310 * LCD_SPEED)
+#define LCD_MID (120 * ROBOT_TRACE_SPEED)
+#define Arrival (310 * ROBOT_TRACE_SPEED)
 #define ROTATE_DELAY 14000000
 #define SHORT_DELAY 100000
+
 /* function prototype */
 void RCC_Configure(void);
 void GPIO_Configure(void);
@@ -27,17 +27,6 @@ void NVIC_Configure(void);
 void USART2_Init(void);
 void USART2_IRQHandler();
 void sendDataUART2(uint16_t data);
-
-typedef enum {
-    BACK, LEFT, FORWARD, RIGHT
-}Direction;
-
-typedef struct Trace {
-    Direction dir;
-    int time;
-    int pos_x;
-    int pos_y;
-}Trace;
 
 typedef struct robot {
     Direction direction; // 출발점의 시야
@@ -49,35 +38,32 @@ typedef struct robot {
 
 void turnLeft(robot* rbt);
 void turnRight(robot* rbt);
-void setNewDirectionToTrace(robot* rbt);
 void turn_Head_To_End(robot* rbt);
-void ShowDirection(robot* rbt);
 
 bool isRobotForward(robot* rbt);
 bool isRobotLeft(robot* rbt);
 bool isRobotRight(robot* rbt);
 bool isRobotBack(robot* rbt);
 bool isRobotArrived(robot* rbt);
+
 void robotStop();
 void robotGo(robot* rbt);
 void robotTurnRight(robot* rbt);
 void robotTurnLeft(robot* rbt);
-void Delay(int value);
 
+void Delay(int value);
 
 void turnLeft(robot* rbt)
 {
     rbt->direction -= 1;
     if (rbt->direction < BACK)
         rbt->direction = RIGHT;
-
 }
 
 void turnRight(robot* rbt) {
     rbt->direction += 1;
     if (rbt->direction > RIGHT)
         rbt->direction = BACK;
-
 }
 
 void turn_Head_To_End(robot* rbt) {
@@ -108,49 +94,11 @@ void turn_Head_To_End(robot* rbt) {
     default:
         break;
     }
-
-}
-
-void ShowDirection(robot* rbt) {
-    switch (rbt->direction) {
-    case FORWARD:
-        LCD_ShowString(1, 20, "FORWARD", BLUE, WHITE);
-        break;
-
-    case LEFT:
-        LCD_ShowString(1, 20, "LEFT       ", BLUE, WHITE);
-        break;
-
-    case RIGHT:
-        LCD_ShowString(1, 20, "RIGHT       ", BLUE, WHITE);
-        break;
-
-    default:
-
-        break;
-    }
-}
-
-Trace trace2[arrSize] = { {FORWARD, 0, LCD_MID, 0}, };
-
-int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
-
-clock_t start;
-clock_t end;
-
-void setNewDirectionToTrace(robot* rbt) {
-    end = clock();
-    rbt->trace[rbt_index].time = (int)(end - start);
-
-    rbt_index++;
-
-    rbt->trace[rbt_index].dir = rbt->direction;
-    rbt->trace[rbt_index].time = 0;
-
-    start = clock();
 }
 
 
+robot_trace_array[arrSize] = { {FORWARD, 0, LCD_MID, 0}, };
+trace_index = 0; 
 
 bool isRobotForward(robot* rbt) {
     return rbt->direction == FORWARD;
@@ -171,7 +119,6 @@ bool isRobotBack(robot* rbt) {
 bool isRobotArrived(robot* rbt) {
     return rbt->forwardBackward >= Arrival;
 }
-
 
 void Delay(int value) {
     int i;
@@ -203,10 +150,10 @@ void robotGo(robot* rbt) {
     default:
         break;
     }
-    LCD_ShowNum(60, 70, rbt->forwardBackward, 6, BLACK, WHITE);
-    LCD_ShowNum(150, 70, rbt->leftRight, 6, BLACK, WHITE);
-    LCD_DrawCircle(rbt->leftRight / LCD_SPEED, rbt->forwardBackward / LCD_SPEED, 1);
-    ShowDirection(rbt);
+    Show_LCD_FB_Displacement(rbt);
+    Show_LCD_LR_Displacement(rbt);
+    Show_LCD_Robot_Direction(rbt);
+    Record_LCD_Robot_Trace(rbt);
 }
 
 void robotTurnRight(robot* rbt) {
@@ -227,49 +174,6 @@ void robotTurnLeft(robot* rbt) {
     Delay(ROTATE_DELAY);
     robotGo(rbt);
     Delay(SHORT_DELAY);
-}
-
-void Show_LCD_Obstacle_LEFT(robot* rbt) {
-    switch (rbt->direction) {
-    case FORWARD:
-        LCD_ShowString(rbt->leftRight / LCD_SPEED + OBSTACLE_DST, rbt->forwardBackward / LCD_SPEED - LCD_SPEED, "O", RED, RED);
-        break;
-
-    case LEFT:
-        LCD_ShowString(rbt->leftRight / LCD_SPEED, rbt->forwardBackward / LCD_SPEED - LCD_SPEED - OBSTACLE_DST * 2, "O", RED, RED);
-        break;
-
-    case RIGHT:
-        LCD_ShowString(rbt->leftRight / LCD_SPEED, rbt->forwardBackward / LCD_SPEED - LCD_SPEED + OBSTACLE_DST * 2, "O", RED, RED);
-        break;
-
-    default:
-        break;
-    }
-
-}
-void Show_LCD_Obstacle_RIGHT(robot* rbt) {
-
-    switch (rbt->direction) {
-    case FORWARD:
-        LCD_ShowString(rbt->leftRight / LCD_SPEED - OBSTACLE_DST * 2, rbt->forwardBackward / LCD_SPEED - LCD_SPEED, "O", RED, RED);
-        break;
-
-    case LEFT:
-        LCD_ShowString(rbt->leftRight / LCD_SPEED, rbt->forwardBackward / LCD_SPEED - LCD_SPEED + OBSTACLE_DST * 2, "O", RED, RED);
-        break;
-
-    case RIGHT:
-        LCD_ShowString(rbt->leftRight / LCD_SPEED, rbt->forwardBackward / LCD_SPEED - LCD_SPEED - OBSTACLE_DST * 2, "O", RED, RED);
-        break;
-
-    default:
-        break;
-    }
-
-}
-void Show_LCD_Obstacle_FORWARD(robot* rbt) {
-    LCD_ShowString(rbt->leftRight / LCD_SPEED, rbt->forwardBackward / LCD_SPEED + LCD_SPEED, "O", RED, RED);
 }
 
 void RCC_Configure(void) {
@@ -362,7 +266,7 @@ int main(void)
     NVIC_Configure();
     LCD_Init();
 
-    struct robot rbt = { FORWARD, GO, trace2, 0, LCD_MID }; // 로봇 상태 초기화;
+    struct robot rbt = { FORWARD, GO, robot_trace_array, 0, LCD_MID }; // 로봇 상태 초기화;
     start = clock(); // 블루투스 모듈 작성시 수정해야함. 
 
     LCD_ShowString(1, 1, "START", BLUE, WHITE);
@@ -412,7 +316,7 @@ int main(void)
             robotTurnRight(&rbt);
 
             turnRight(&rbt); // setStatus
-            setNewDirectionToTrace(&rbt); // setTrace
+            Record_Trace_Array(&rbt); // setTrace
         }
         else if (isRobotForward(&rbt) && frontRightObstacle()) {
             //Show_LCD_Obstacle_RIGHT(&rbt);
@@ -421,7 +325,7 @@ int main(void)
             robotTurnLeft(&rbt);
 
             turnLeft(&rbt); // setStatus
-            setNewDirectionToTrace(&rbt); // setTrace
+            Record_Trace_Array(&rbt); // setTrace
         }
         else if (isRobotRight(&rbt) && leftRightObstacle()) {
             Show_LCD_Obstacle_LEFT(&rbt);
@@ -447,7 +351,7 @@ int main(void)
             robotStop();
             robotTurnRight(&rbt);
             turnRight(&rbt); // setStatus
-            setNewDirectionToTrace(&rbt); // setTrace
+            Record_Trace_Array(&rbt); // setTrace
         }
         else if (isRobotLeft(&rbt) && frontRightObstacle()) {
             //Show_LCD_Obstacle_RIGHT(&rbt);
@@ -456,14 +360,14 @@ int main(void)
             robotTurnRight(&rbt);
 
             turnRight(&rbt); // setStatus
-            setNewDirectionToTrace(&rbt); // setTrace
+            Record_Trace_Array(&rbt); // setTrace
         }
         else if (isRobotRight(&rbt) && noObstacle()) {
             robotStop();
             robotTurnLeft(&rbt);
 
             turnLeft(&rbt); // setStatus
-            setNewDirectionToTrace(&rbt); // setTrace
+            Record_Trace_Array(&rbt); // setTrace
         }
         else if (isRobotRight(&rbt) && frontLeftObstacle()) {
             //Show_LCD_Obstacle_LEFT(&rbt);
@@ -472,7 +376,7 @@ int main(void)
             robotTurnLeft(&rbt);
 
             turnLeft(&rbt); // setStatus
-            setNewDirectionToTrace(&rbt); // setTrace
+            Record_Trace_Array(&rbt); // setTrace
         }
         else if (isRobotForward(&rbt) && frontObstacle()) {
             Show_LCD_Obstacle_FORWARD(&rbt);
@@ -485,7 +389,7 @@ int main(void)
                 robotTurnRight(&rbt);
                 turnRight(&rbt); // setStatus
             }
-            setNewDirectionToTrace(&rbt); // setTrace
+            Record_Trace_Array(&rbt); // setTrace
         }
         else {
             robotGo(&rbt);
