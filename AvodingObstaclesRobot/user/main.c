@@ -9,6 +9,7 @@
 #include "lcd.h"
 #include "obstacle.h"
 #include "trace.h"
+#include "motor.h"
 #include <stdbool.h>
 #include <time.h>
 
@@ -98,7 +99,6 @@ void turn_Head_To_End(robot* rbt) {
     }
 }
 
-
 robot_trace_array[arrSize] = { {FORWARD, 0, LCD_MID, 0}, };
 trace_index = 0; 
 
@@ -128,17 +128,11 @@ void Delay(int value) {
 }
 
 void robotStop() {
-    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
-    GPIO_ResetBits(GPIOC, GPIO_Pin_9);
-    GPIO_ResetBits(GPIOC, GPIO_Pin_10);
-    GPIO_ResetBits(GPIOC, GPIO_Pin_12);
+    MOTOR_SET_STOP();
 }
 
 void robotGo(robot* rbt) {
-    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
-    GPIO_SetBits(GPIOC, GPIO_Pin_9);
-    GPIO_ResetBits(GPIOC, GPIO_Pin_10);
-    GPIO_SetBits(GPIOC, GPIO_Pin_12);
+    MOTOR_SET_GO();
     switch (rbt->direction) {
     case FORWARD:
         rbt->forwardBackward++;
@@ -159,27 +153,21 @@ void robotGo(robot* rbt) {
 }
 
 void robotTurnRight(robot* rbt) {
-    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
-    GPIO_SetBits(GPIOC, GPIO_Pin_9);
-    GPIO_SetBits(GPIOC, GPIO_Pin_10);
-    GPIO_ResetBits(GPIOC, GPIO_Pin_12);
+    MOTOR_SET_TURN_RIGHT();
     Delay(ROTATE_DELAY);
     robotGo(rbt);
     Delay(SHORT_DELAY);
 }
 
 void robotTurnLeft(robot* rbt) {
-    GPIO_SetBits(GPIOC, GPIO_Pin_8);
-    GPIO_ResetBits(GPIOC, GPIO_Pin_9);
-    GPIO_ResetBits(GPIOC, GPIO_Pin_10);
-    GPIO_SetBits(GPIOC, GPIO_Pin_12);
+    MOTOR_SET_TURN_LEFT();
     Delay(ROTATE_DELAY);
     robotGo(rbt);
     Delay(SHORT_DELAY);
 }
 
 void RCC_Configure(void) {
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOA, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOA, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
     /* UART 2 enable */
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
@@ -191,11 +179,6 @@ void GPIO_Configure(void) {
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4;
     GPIO_InitStructure.GPIO_Speed = 0;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-    GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_12;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 
     /* UART pin setting */
@@ -262,6 +245,7 @@ void sendDataUART2(uint16_t data) {
 
 int main(void)
 {
+    MOTOR_Configure();
     RCC_Configure();
     GPIO_Configure();
     USART2_Init();
