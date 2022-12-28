@@ -4,15 +4,15 @@
 void Show_LCD_Obstacle_LEFT(robot* rbt) {
     switch (rbt->direction) {
     case FORWARD:
-        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED + OBSTACLE_DST, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED, "O", RED, RED);
+        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED + OB_LCD_DST, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED, "O", RED, RED);
         break;
 
     case LEFT:
-        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED - OBSTACLE_DST * 2, "O", RED, RED);
+        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED - OB_LCD_DST * 2, "O", RED, RED);
         break;
 
     case RIGHT:
-        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED + OBSTACLE_DST * 2, "O", RED, RED);
+        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED + OB_LCD_DST * 2, "O", RED, RED);
         break;
 
     default:
@@ -23,15 +23,15 @@ void Show_LCD_Obstacle_LEFT(robot* rbt) {
 void Show_LCD_Obstacle_RIGHT(robot* rbt) {
     switch (rbt->direction) {
     case FORWARD:
-        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED - OBSTACLE_DST * 2, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED, "O", RED, RED);
+        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED - OB_LCD_DST * 2, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED, "O", RED, RED);
         break;
 
     case LEFT:
-        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED + OBSTACLE_DST * 2, "O", RED, RED);
+        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED + OB_LCD_DST * 2, "O", RED, RED);
         break;
 
     case RIGHT:
-        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED - OBSTACLE_DST * 2, "O", RED, RED);
+        LCD_ShowString(rbt->leftRight / ROBOT_TRACE_SPEED, rbt->forwardBackward / ROBOT_TRACE_SPEED - ROBOT_TRACE_SPEED - OB_LCD_DST * 2, "O", RED, RED);
         break;
 
     default:

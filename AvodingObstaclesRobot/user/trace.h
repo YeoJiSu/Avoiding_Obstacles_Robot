@@ -6,6 +6,7 @@
 
 #define arrSize 1000 // 저장할 trace 배열 크기
 #define ROBOT_TRACE_SPEED 10 // LCD에 표현할 로봇의 진행 속도
+#define OB_LCD_DST 5
 
 /*######################################### DEFINE END #########################################*/
 

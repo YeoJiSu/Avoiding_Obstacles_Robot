@@ -13,7 +13,7 @@
 #define GO 1
 #define STOP 0
 
-#define OBSTACLE_DST 5
+
 
 #define LCD_WIDTH_SIZE 240
 #define LCD_LENGTH_SIZE 310
