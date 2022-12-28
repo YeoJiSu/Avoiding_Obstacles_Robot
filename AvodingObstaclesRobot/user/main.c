@@ -35,10 +35,10 @@ typedef struct robot {
 void ROBOT_ROTATE_DIR_L(robot* rbt_ptr);
 void ROBOT_ROTATE_DIR_R(robot* rbt_ptr);
 
-bool rbt_dir_FW(robot* rbt_ptr);
-bool rbt_dir_B(robot* rbt_ptr);
-bool rbt_dir_L(robot* rbt_ptr);
-bool rbt_dir_R(robot* rbt_ptr);
+bool ROBOT_CHK_DIR_FW(robot* rbt_ptr);
+bool ROBOT_CHK_DIR_B(robot* rbt_ptr);
+bool ROBOT_CHK_DIR_L(robot* rbt_ptr);
+bool ROBOT_CHK_DIR_R(robot* rbt_ptr);
 
 void ROBOT_STOP();
 void ROBOT_GO(robot* rbt_ptr);
@@ -91,19 +91,19 @@ void ROBOT_TURN_HEAD_TO_END(robot* rbt_ptr) {
 robot_trace_array[arrSize] = { {FORWARD, 0, LCD_MID, 0}, };
 trace_index = 0; 
 
-bool rbt_dir_FW(robot* rbt_ptr) {
+bool ROBOT_CHK_DIR_FW(robot* rbt_ptr) {
     return rbt_ptr->direction == FORWARD;
 }
 
-bool rbt_dir_L(robot* rbt_ptr) {
+bool ROBOT_CHK_DIR_L(robot* rbt_ptr) {
     return rbt_ptr->direction == LEFT;
 }
 
-bool rbt_dir_R(robot* rbt_ptr) {
+bool ROBOT_CHK_DIR_R(robot* rbt_ptr) {
     return rbt_ptr->direction == RIGHT;
 }
 
-bool rbt_dir_B(robot* rbt_ptr) {
+bool ROBOT_CHK_DIR_B(robot* rbt_ptr) {
     return rbt_ptr->direction == BACK;
 }
 
@@ -160,8 +160,6 @@ void show_LCD_msg_Arrived(void) {
     LCD_ShowString(120, 300, "ARRIVED", BLUE, YELLOW);
 }
 
-
-
 int main(void)
 {
     MOTOR_Configure();
@@ -192,76 +190,75 @@ int main(void)
             }
         }
 
-        if (rbt_dir_FW(&rbt) && OB_NONE()) {
+        if (ROBOT_CHK_DIR_FW(&rbt) && OB_NONE()) {
             ROBOT_GO(&rbt);
         }
-        else if (rbt_dir_FW(&rbt) && OB_LEFT_RIGHT()) {
+        else if (ROBOT_CHK_DIR_FW(&rbt) && OB_LEFT_RIGHT()) {
             Show_LCD_Obstacle_LEFT(&rbt);
             Show_LCD_Obstacle_RIGHT(&rbt);
             ROBOT_GO(&rbt);
         }
-        else if (rbt_dir_FW(&rbt) && OB_LEFT()) {
+        else if (ROBOT_CHK_DIR_FW(&rbt) && OB_LEFT()) {
             Show_LCD_Obstacle_LEFT(&rbt);
             ROBOT_GO(&rbt);
         }
-        else if (rbt_dir_FW(&rbt) && OB_RIGHT()) {
+        else if (ROBOT_CHK_DIR_FW(&rbt) && OB_RIGHT()) {
             Show_LCD_Obstacle_RIGHT(&rbt);
             ROBOT_GO(&rbt);
         }
-        else if (rbt_dir_FW(&rbt) && OB_FRONT_LEFT()) {
-            Show_LCD_Obstacle_FORWARD(&rbt);
-
-            ROBOT_STOP();
-            ROBOT_TURN_R(&rbt);
-            Record_Trace_Array(&rbt); // setTrace
-        }
-        else if (rbt_dir_FW(&rbt) && OB_FRONT_RIGHT()) {
-            Show_LCD_Obstacle_FORWARD(&rbt);
-            ROBOT_STOP();
-            ROBOT_TURN_L(&rbt);
-            Record_Trace_Array(&rbt); // setTrace
-        }
-        else if (rbt_dir_R(&rbt) && OB_LEFT_RIGHT()) {
-            Show_LCD_Obstacle_LEFT(&rbt);
-            Show_LCD_Obstacle_RIGHT(&rbt);
-            ROBOT_GO(&rbt);
-        }
-        else if (rbt_dir_R(&rbt) && OB_LEFT()) {
-            Show_LCD_Obstacle_LEFT(&rbt);
-            ROBOT_GO(&rbt);
-        }
-        else if (rbt_dir_L(&rbt) && OB_LEFT_RIGHT()) {
-            Show_LCD_Obstacle_LEFT(&rbt);
-            Show_LCD_Obstacle_RIGHT(&rbt);
-            ROBOT_GO(&rbt);
-        }
-        else if (rbt_dir_L(&rbt) && OB_RIGHT()) {
-            Show_LCD_Obstacle_RIGHT(&rbt);
-            ROBOT_GO(&rbt);
-        }
-        else if (rbt_dir_L(&rbt) && OB_NONE()) {
-            ROBOT_STOP();
-            ROBOT_TURN_R(&rbt);
-            Record_Trace_Array(&rbt); // setTrace
-        }
-        else if (rbt_dir_L(&rbt) && OB_FRONT_RIGHT()) {
+        else if (ROBOT_CHK_DIR_FW(&rbt) && OB_FRONT_LEFT()) {
             Show_LCD_Obstacle_FORWARD(&rbt);
             ROBOT_STOP();
             ROBOT_TURN_R(&rbt);
             Record_Trace_Array(&rbt); // setTrace
         }
-        else if (rbt_dir_R(&rbt) && OB_NONE()) {
-            ROBOT_STOP();
-            ROBOT_TURN_L(&rbt);
-            Record_Trace_Array(&rbt); // setTrace
-        }
-        else if (rbt_dir_R(&rbt) && OB_FRONT_LEFT()) {
+        else if (ROBOT_CHK_DIR_FW(&rbt) && OB_FRONT_RIGHT()) {
             Show_LCD_Obstacle_FORWARD(&rbt);
             ROBOT_STOP();
             ROBOT_TURN_L(&rbt);
             Record_Trace_Array(&rbt); // setTrace
         }
-        else if (rbt_dir_FW(&rbt) && OB_FRONT()) {
+        else if (ROBOT_CHK_DIR_R(&rbt) && OB_LEFT_RIGHT()) {
+            Show_LCD_Obstacle_LEFT(&rbt);
+            Show_LCD_Obstacle_RIGHT(&rbt);
+            ROBOT_GO(&rbt);
+        }
+        else if (ROBOT_CHK_DIR_R(&rbt) && OB_LEFT()) {
+            Show_LCD_Obstacle_LEFT(&rbt);
+            ROBOT_GO(&rbt);
+        }
+        else if (ROBOT_CHK_DIR_L(&rbt) && OB_LEFT_RIGHT()) {
+            Show_LCD_Obstacle_LEFT(&rbt);
+            Show_LCD_Obstacle_RIGHT(&rbt);
+            ROBOT_GO(&rbt);
+        }
+        else if (ROBOT_CHK_DIR_L(&rbt) && OB_RIGHT()) {
+            Show_LCD_Obstacle_RIGHT(&rbt);
+            ROBOT_GO(&rbt);
+        }
+        else if (ROBOT_CHK_DIR_L(&rbt) && OB_NONE()) {
+            ROBOT_STOP();
+            ROBOT_TURN_R(&rbt);
+            Record_Trace_Array(&rbt); // setTrace
+        }
+        else if (ROBOT_CHK_DIR_L(&rbt) && OB_FRONT_RIGHT()) {
+            Show_LCD_Obstacle_FORWARD(&rbt);
+            ROBOT_STOP();
+            ROBOT_TURN_R(&rbt);
+            Record_Trace_Array(&rbt); // setTrace
+        }
+        else if (ROBOT_CHK_DIR_R(&rbt) && OB_NONE()) {
+            ROBOT_STOP();
+            ROBOT_TURN_L(&rbt);
+            Record_Trace_Array(&rbt); // setTrace
+        }
+        else if (ROBOT_CHK_DIR_R(&rbt) && OB_FRONT_LEFT()) {
+            Show_LCD_Obstacle_FORWARD(&rbt);
+            ROBOT_STOP();
+            ROBOT_TURN_L(&rbt);
+            Record_Trace_Array(&rbt); // setTrace
+        }
+        else if (ROBOT_CHK_DIR_FW(&rbt) && OB_FRONT()) {
             Show_LCD_Obstacle_FORWARD(&rbt);
             ROBOT_STOP();
             if (rbt.LR > LCD_MID) {
