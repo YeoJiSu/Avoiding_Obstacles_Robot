@@ -13,7 +13,6 @@
 #define arrSize 1000
 #define GO 1
 #define STOP 0
-#define TESTSIZE 36 
 #define LCD_SPEED 10
 #define OBSTACLE_DST 5
 #define LCD_MID (120 * LCD_SPEED)
