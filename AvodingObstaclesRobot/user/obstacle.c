@@ -1,39 +1,39 @@
 #include "obstacle.h"
 
-bool leftOb() {
+bool __OB_LEFT() {
     return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4) == Bit_RESET;
 }
 
-bool rightOb() {
+bool __OB_RIGHT() {
     return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_3) == Bit_RESET;
 }
 
-bool frontOb() {
+bool __OB_FRONT() {
     return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2) == Bit_RESET;
 }
 
-bool noObstacle() {
-    return !frontOb() && !leftOb() && !rightOb();
+bool OB_NONE() {
+    return !__OB_FRONT() && !__OB_LEFT() && !__OB_RIGHT();
 }
 
-bool frontLeftObstacle() {
-    return frontOb() && leftOb() && !rightOb();
+bool OB_FRONT_LEFT() {
+    return __OB_FRONT() && __OB_LEFT() && !__OB_RIGHT();
 }
 
-bool frontRightObstacle() {
-    return frontOb() && !leftOb() && rightOb();
+bool OB_FRONT_RIGHT() {
+    return __OB_FRONT() && !__OB_LEFT() && __OB_RIGHT();
 }
 
-bool leftObstacle() {
-    return !frontOb() && leftOb() && !rightOb();
+bool OB_LEFT() {
+    return !__OB_FRONT() && __OB_LEFT() && !__OB_RIGHT();
 }
 
-bool rightObstacle() {
-    return !frontOb() && !leftOb() && rightOb();
+bool OB_RIGHT() {
+    return !__OB_FRONT() && !__OB_LEFT() && __OB_RIGHT();
 }
-bool leftRightObstacle() {
-    return !frontOb() && leftOb() && rightOb();
+bool OB_LEFT_RIGHT() {
+    return !__OB_FRONT() && __OB_LEFT() && __OB_RIGHT();
 }
-bool frontObstacle() {
-    return frontOb() && !leftOb() && !rightOb();
+bool OB_FRONT() {
+    return __OB_FRONT() && !__OB_LEFT() && !__OB_RIGHT();
 }
