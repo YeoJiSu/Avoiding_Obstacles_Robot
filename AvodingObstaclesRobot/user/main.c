@@ -64,6 +64,7 @@ void robotTurnRight(robot* rbt);
 void robotTurnLeft(robot* rbt);
 void Delay(int value);
 
+
 void turnLeft(robot* rbt)
 {
     rbt->direction -= 1;
@@ -131,6 +132,7 @@ void ShowDirection(robot* rbt) {
 }
 
 Trace trace2[arrSize] = { {FORWARD, 0, LCD_MID, 0}, };
+
 int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
 clock_t start;
@@ -496,4 +498,5 @@ int main(void)
     LCD_ShowString(120, 300, "ARRIVED", BLUE, YELLOW);
 
     return 0;
+
 }
