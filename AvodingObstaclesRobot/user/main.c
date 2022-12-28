@@ -13,8 +13,6 @@
 #define GO 1
 #define STOP 0
 
-
-
 #define LCD_WIDTH_SIZE 240
 #define LCD_LENGTH_SIZE 310
 #define LCD_MID ((LCD_WIDTH_SIZE / 2) * ROBOT_TRACE_SPEED)
@@ -27,8 +25,8 @@ typedef struct robot {
     Direction direction; // 출발점의 시야
     bool isGo; // 정지 또는 출발
     Trace* trace; // 지나온 길 (MAP)
-    int forwardBackward; // 앞뒤 변위 (결승점까지 남은 거리)
-    int leftRight; // 좌우 변위 (좌회전, 우회전 결정요소)
+    int FB; // 앞뒤 변위 (결승점까지 남은 거리)
+    int LR; // 좌우 변위 (좌회전, 우회전 결정요소)
 }robot;
 
 /* function definition */
@@ -65,16 +63,16 @@ void turnRight(robot* rbt) {
 }
 
 void turn_Head_To_End(robot* rbt) {
-    if (rbt->leftRight > LCD_MID) {
+    if (rbt->LR > LCD_MID) {
         robotTurnRight(rbt);
         turnRight(rbt);
     }
-    else if (rbt->leftRight < LCD_MID) {
+    else if (rbt->LR < LCD_MID) {
         robotTurnLeft(rbt);
         turnLeft(rbt);
     }
     else {}
-    while (rbt->leftRight != LCD_MID) {
+    while (rbt->LR != LCD_MID) {
         robotGo(rbt);
     }
 
@@ -114,7 +112,7 @@ bool isRobotBack(robot* rbt) {
 }
 
 bool isRobotArrived(robot* rbt) {
-    return rbt->forwardBackward >= Arrival;
+    return rbt->FB >= Arrival;
 }
 
 void Delay(int value) {
@@ -130,13 +128,13 @@ void robotGo(robot* rbt) {
     MOTOR_SET_GO();
     switch (rbt->direction) {
     case FORWARD:
-        rbt->forwardBackward++;
+        rbt->FB++;
         break;
     case LEFT:
-        rbt->leftRight++;
+        rbt->LR++;
         break;
     case RIGHT:
-        rbt->leftRight--;
+        rbt->LR--;
         break;
     default:
         break;
@@ -288,7 +286,7 @@ int main(void)
         else if (isRobotForward(&rbt) && frontObstacle()) {
             Show_LCD_Obstacle_FORWARD(&rbt);
             robotStop();
-            if (rbt.leftRight > LCD_MID) {
+            if (rbt.LR > LCD_MID) {
                 robotTurnLeft(&rbt);
                 turnLeft(&rbt); // setStatus
             }
