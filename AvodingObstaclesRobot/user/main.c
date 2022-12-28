@@ -160,7 +160,7 @@ void show_LCD_msg_Arrived(void) {
     LCD_ShowString(120, 300, "ARRIVED", BLUE, YELLOW);
 }
 
-FunctionalState isGo = DISABLE;
+
 
 int main(void)
 {
