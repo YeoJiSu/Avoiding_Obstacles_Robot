@@ -49,6 +49,7 @@ void robotTurnRight(robot* rbt);
 void robotTurnLeft(robot* rbt);
 
 void Delay(int value);
+void Show_LCD_msg_Arrived(void);
 
 void turnLeft(robot* rbt)
 {
@@ -158,6 +159,9 @@ void robotTurnLeft(robot* rbt) {
     Delay(ROTATE_DELAY);
     robotGo(rbt);
     Delay(SHORT_DELAY);
+}
+void Show_LCD_msg_Arrived(void) {
+    LCD_ShowString(120, 300, "ARRIVED", BLUE, YELLOW);
 }
 
 FunctionalState isGo = DISABLE;
@@ -302,8 +306,7 @@ int main(void)
     turn_Head_To_End(&rbt);
 
     robotStop();
-    LCD_ShowString(120, 300, "ARRIVED", BLUE, YELLOW);
+    Show_LCD_msg_Arrived();
 
     return 0;
-
 }
