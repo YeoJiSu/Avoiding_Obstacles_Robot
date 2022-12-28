@@ -1,3 +1,5 @@
+#include "obstacle.h"
+
 bool leftOb() {
     return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4) == Bit_RESET;
 }
