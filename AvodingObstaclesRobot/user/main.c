@@ -27,6 +27,16 @@ void USART2_Init(void);
 void USART2_IRQHandler();
 void sendDataUART2(uint16_t data);
 
+/* function prototype */
+void RCC_Configure(void);
+void GPIO_Configure(void);
+void EXTI_Configure(void);
+void NVIC_Configure(void);
+void USART2_Init(void);
+void USART2_IRQHandler();
+void sendDataUART1(uint16_t data);
+void sendDataUART2(uint16_t data);
+
 typedef enum {
     BACK, LEFT, FORWARD, RIGHT
 }Direction;
@@ -51,6 +61,7 @@ void turnRight(robot* rbt);
 void setNewDirectionToTrace(robot* rbt);
 void turn_Head_To_End(robot* rbt);
 void ShowDirection(robot* rbt);
+
 bool leftOb();
 bool rightOb();
 bool frontOb();
@@ -61,6 +72,7 @@ bool leftObstacle();
 bool rightObstacle();
 bool frontObstacle();
 bool leftRightObstacle();
+
 bool isRobotForward(robot* rbt);
 bool isRobotLeft(robot* rbt);
 bool isRobotRight(robot* rbt);
@@ -71,6 +83,7 @@ void robotGo(robot* rbt);
 void robotTurnRight(robot* rbt);
 void robotTurnLeft(robot* rbt);
 void Delay(int value);
+
 
 void turnLeft(robot* rbt)
 {
@@ -139,6 +152,7 @@ void ShowDirection(robot* rbt) {
 }
 
 Trace trace2[arrSize] = { {FORWARD, 0, LCD_MID, 0}, };
+
 int rbt_index = 0; // 로봇 방향이 바뀔 때 증가하는 index. 결국 Trace 저장용!
 
 clock_t start;
@@ -214,6 +228,33 @@ bool isRobotArrived(robot* rbt) {
     return rbt->forwardBackward >= Arrival;
 }
 
+void Delay(void) {
+	int i;
+
+	for (i = 0; i < 10000000; i++) {}
+}
+
+void robotStop() {
+    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_9);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_10);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_11);
+}
+
+void robotGo() {
+    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+    GPIO_SetBits(GPIOC, GPIO_Pin_9);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_10);
+    GPIO_SetBits(GPIOC, GPIO_Pin_11);
+}
+
+void robotTurnRight() {
+    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+    GPIO_SetBits(GPIOC, GPIO_Pin_9);
+    GPIO_SetBits(GPIOC, GPIO_Pin_10);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_11);
+    Delay();
+}
 
 void Delay(int value) {
     int i;
@@ -312,13 +353,16 @@ void Show_LCD_Obstacle_RIGHT(robot* rbt) {
 }
 void Show_LCD_Obstacle_FORWARD(robot* rbt) {
     LCD_ShowString(rbt->leftRight / LCD_SPEED, rbt->forwardBackward / LCD_SPEED + LCD_SPEED, "O", RED, RED);
+
 }
+
 
 void RCC_Configure(void) {
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOA, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
     /* UART 2 enable */
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+
 }
 
 void GPIO_Configure(void) {
@@ -403,6 +447,7 @@ int main(void)
     USART2_Init();
     NVIC_Configure();
     LCD_Init();
+
 
     struct robot rbt = { FORWARD, GO, trace2, 0, LCD_MID }; // 로봇 상태 초기화;
     start = clock(); // 블루투스 모듈 작성시 수정해야함. 
@@ -529,6 +574,7 @@ int main(void)
             }
             setNewDirectionToTrace(&rbt); // setTrace
         }
+
         else {
             robotGo(&rbt);
         }
@@ -540,4 +586,5 @@ int main(void)
     LCD_ShowString(120, 300, "ARRIVED", BLUE, YELLOW);
 
     return 0;
+
 }
