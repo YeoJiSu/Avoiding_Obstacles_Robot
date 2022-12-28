@@ -10,6 +10,7 @@
 #include "obstacle.h"
 #include "trace.h"
 #include "motor.h"
+#include "sensor.h"
 #include <stdbool.h>
 #include <time.h>
 
@@ -176,11 +177,6 @@ void RCC_Configure(void) {
 void GPIO_Configure(void) {
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4;
-    GPIO_InitStructure.GPIO_Speed = 0;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-    GPIO_Init(GPIOC, &GPIO_InitStructure);
-
     /* UART pin setting */
    //TX, Output
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2; // UART2 and UART1 for TX
@@ -246,6 +242,7 @@ void sendDataUART2(uint16_t data) {
 int main(void)
 {
     MOTOR_Configure();
+    SENSOR_Configure();
     RCC_Configure();
     GPIO_Configure();
     USART2_Init();
