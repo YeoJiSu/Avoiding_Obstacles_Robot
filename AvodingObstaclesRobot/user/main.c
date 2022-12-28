@@ -32,49 +32,49 @@ typedef struct robot {
 
 /* function definition */
 
-void ROBOT_ROTATE_DIR_L(robot* rbt);
-void ROBOT_ROTATE_DIR_R(robot* rbt);
+void ROBOT_ROTATE_DIR_L(robot* rbt_ptr);
+void ROBOT_ROTATE_DIR_R(robot* rbt_ptr);
 
-bool rbt_dir_FW(robot* rbt);
-bool rbt_dir_B(robot* rbt);
-bool rbt_dir_L(robot* rbt);
-bool rbt_dir_R(robot* rbt);
+bool rbt_dir_FW(robot* rbt_ptr);
+bool rbt_dir_B(robot* rbt_ptr);
+bool rbt_dir_L(robot* rbt_ptr);
+bool rbt_dir_R(robot* rbt_ptr);
 
 void ROBOT_STOP();
-void ROBOT_GO(robot* rbt);
-void ROBOT_TURN_R(robot* rbt);
-void ROBOT_TURN_L(robot* rbt);
-void ROBOT_TURN_HEAD_TO_END(robot* rbt);
+void ROBOT_GO(robot* rbt_ptr);
+void ROBOT_TURN_R(robot* rbt_ptr);
+void ROBOT_TURN_L(robot* rbt_ptr);
+void ROBOT_TURN_HEAD_TO_END(robot* rbt_ptr);
 
 void Delay(int value);
 void show_LCD_msg_Arrived(void);
-bool isRobotArrived(robot* rbt);
+bool isRobotArrived(robot* rbt_ptr);
 
-void ROBOT_ROTATE_DIR_L(robot* rbt) {
-    rbt->direction -= 1;
-    if (rbt->direction < BACK)
-        rbt->direction = RIGHT;
+void ROBOT_ROTATE_DIR_L(robot* rbt_ptr) {
+    rbt_ptr->direction -= 1;
+    if (rbt_ptr->direction < BACK)
+        rbt_ptr->direction = RIGHT;
 }
 
-void ROBOT_ROTATE_DIR_R(robot* rbt) {
-    rbt->direction += 1;
-    if (rbt->direction > RIGHT)
-        rbt->direction = BACK;
+void ROBOT_ROTATE_DIR_R(robot* rbt_ptr) {
+    rbt_ptr->direction += 1;
+    if (rbt_ptr->direction > RIGHT)
+        rbt_ptr->direction = BACK;
 }
 
-void ROBOT_TURN_HEAD_TO_END(robot* rbt) {
-    if (rbt->LR > LCD_MID) {
+void ROBOT_TURN_HEAD_TO_END(robot* rbt_ptr) {
+    if (rbt_ptr->LR > LCD_MID) {
         ROBOT_TURN_R(rbt);
     }
-    else if (rbt->LR < LCD_MID) {
+    else if (rbt_ptr->LR < LCD_MID) {
         ROBOT_TURN_L(rbt);
     }
     else {}
-    while (rbt->LR != LCD_MID) {
+    while (rbt_ptr->LR != LCD_MID) {
         ROBOT_GO(rbt);
     }
 
-    switch (rbt->direction) {
+    switch (rbt_ptr->direction) {
     case LEFT:
         ROBOT_TURN_R(rbt);
         break;
@@ -91,24 +91,24 @@ void ROBOT_TURN_HEAD_TO_END(robot* rbt) {
 robot_trace_array[arrSize] = { {FORWARD, 0, LCD_MID, 0}, };
 trace_index = 0; 
 
-bool rbt_dir_FW(robot* rbt) {
-    return rbt->direction == FORWARD;
+bool rbt_dir_FW(robot* rbt_ptr) {
+    return rbt_ptr->direction == FORWARD;
 }
 
-bool rbt_dir_L(robot* rbt) {
-    return rbt->direction == LEFT;
+bool rbt_dir_L(robot* rbt_ptr) {
+    return rbt_ptr->direction == LEFT;
 }
 
-bool rbt_dir_R(robot* rbt) {
-    return rbt->direction == RIGHT;
+bool rbt_dir_R(robot* rbt_ptr) {
+    return rbt_ptr->direction == RIGHT;
 }
 
-bool rbt_dir_B(robot* rbt) {
-    return rbt->direction == BACK;
+bool rbt_dir_B(robot* rbt_ptr) {
+    return rbt_ptr->direction == BACK;
 }
 
-bool isRobotArrived(robot* rbt) {
-    return rbt->FB >= ARRIVAL;
+bool isRobotArrived(robot* rbt_ptr) {
+    return rbt_ptr->FB >= ARRIVAL;
 }
 
 void Delay(int value) {
@@ -120,41 +120,41 @@ void ROBOT_STOP() {
     MOTOR_SET_STOP();
 }
 
-void ROBOT_GO(robot* rbt) {
+void ROBOT_GO(robot* rbt_ptr) {
     MOTOR_SET_GO();
-    switch (rbt->direction) {
+    switch (rbt_ptr->direction) {
     case FORWARD:
-        rbt->FB++;
+        rbt_ptr->FB++;
         break;
     case LEFT:
-        rbt->LR++;
+        rbt_ptr->LR++;
         break;
     case RIGHT:
-        rbt->LR--;
+        rbt_ptr->LR--;
         break;
     default:
         break;
     }
-    Show_LCD_FB_Displacement(rbt);
-    Show_LCD_LR_Displacement(rbt);
-    Show_LCD_Robot_Direction(rbt);
-    Record_LCD_Robot_Trace(rbt);
+    Show_LCD_FB_Displacement(rbt_ptr);
+    Show_LCD_LR_Displacement(rbt_ptr);
+    Show_LCD_Robot_Direction(rbt_ptr);
+    Record_LCD_Robot_Trace(rbt_ptr);
 }
 
-void ROBOT_TURN_R(robot* rbt) {
+void ROBOT_TURN_R(robot* rbt_ptr) {
     MOTOR_SET_TURN_RIGHT();
     Delay(ROTATE_90DEG_DLY);
-    ROBOT_GO(rbt);
+    ROBOT_GO(rbt_ptr);
     Delay(SHORT_DLY);
-    ROBOT_ROTATE_DIR_R(rbt);
+    ROBOT_ROTATE_DIR_R(rbt_ptr);
 }
 
-void ROBOT_TURN_L(robot* rbt) {
+void ROBOT_TURN_L(robot* rbt_ptr) {
     MOTOR_SET_TURN_LEFT();
     Delay(ROTATE_90DEG_DLY);
-    ROBOT_GO(rbt);
+    ROBOT_GO(rbt_ptr);
     Delay(SHORT_DLY);
-    ROBOT_ROTATE_DIR_L(rbt);
+    ROBOT_ROTATE_DIR_L(rbt_ptr);
 }
 void show_LCD_msg_Arrived(void) {
     LCD_ShowString(120, 300, "ARRIVED", BLUE, YELLOW);

@@ -26,21 +26,21 @@ typedef struct Trace {
 /*###################################### FUNCTION DEFINITION ######################################*/
 
 // 인식된 장애물을 로봇의 방향의 상대적으로 표현함.
-void Show_LCD_Obstacle_LEFT(robot* rbt);
-void Show_LCD_Obstacle_RIGHT(robot* rbt);
-void Show_LCD_Obstacle_FORWARD(robot* rbt);
+void Show_LCD_Obstacle_LEFT(robot* rbt_ptr);
+void Show_LCD_Obstacle_RIGHT(robot* rbt_ptr);
+void Show_LCD_Obstacle_FORWARD(robot* rbt_ptr);
 
 // LCD에 robot이 현재 바라보는 방향을 글자로 출력
-void Show_LCD_Robot_Direction(robot* rbt);
+void Show_LCD_Robot_Direction(robot* rbt_ptr);
 
 // LCD에 robot의 전후좌우 변위를 배율에 맞게 출력
-void Show_LCD_FB_Displacement(robot* rbt);
-void Show_LCD_LR_Displacement(robot* rbt);
+void Show_LCD_FB_Displacement(robot* rbt_ptr);
+void Show_LCD_LR_Displacement(robot* rbt_ptr);
 
 // LCD에 robot이 지나온 길을 drawcircle 모듈을 이용하여 출력
-void Record_LCD_Robot_Trace(robot* rbt);
+void Record_LCD_Robot_Trace(robot* rbt_ptr);
 
-void Record_Trace_Array(robot* rbt);
+void Record_Trace_Array(robot* rbt_ptr);
 
 /*###################################### FUNCTION DEFINITION END ######################################*/
 
