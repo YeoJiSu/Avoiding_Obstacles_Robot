@@ -9,18 +9,13 @@
 #include "bluetooth.h"
 #include <stdbool.h>
 #include <time.h>
+#include "lcd2.h"
+#include "robot.h"
 
 #define GO 1
 #define STOP 0
 
-#define LCD_WIDTH_SIZE 240
-#define LCD_LENGTH_SIZE 310
-#define LCD_MID ((LCD_WIDTH_SIZE / 2) * ROBOT_TRACE_SPEED)
-
 #define ARRIVAL (LCD_LENGTH_SIZE * ROBOT_TRACE_SPEED)
-
-#define ROTATE_90DEG_DLY 14000000
-#define SHORT_DLY 100000
 
 typedef struct robot {
     Direction direction; // 출발점의 시야
@@ -31,131 +26,16 @@ typedef struct robot {
 }robot;
 
 /* function definition */
-
-void ROBOT_ROTATE_DIR_L(robot* rbt_ptr);
-void ROBOT_ROTATE_DIR_R(robot* rbt_ptr);
-
-bool ROBOT_CHK_DIR_FW(robot* rbt_ptr);
-bool ROBOT_CHK_DIR_B(robot* rbt_ptr);
-bool ROBOT_CHK_DIR_L(robot* rbt_ptr);
-bool ROBOT_CHK_DIR_R(robot* rbt_ptr);
-
-void ROBOT_STOP();
-void ROBOT_GO(robot* rbt_ptr);
-void ROBOT_TURN_R(robot* rbt_ptr);
-void ROBOT_TURN_L(robot* rbt_ptr);
-void ROBOT_TURN_HEAD_TO_END(robot* rbt_ptr);
-
-void Delay(int value);
 void show_LCD_msg_Arrived(void);
 bool isRobotArrived(robot* rbt_ptr);
 
-void ROBOT_ROTATE_DIR_L(robot* rbt_ptr) {
-    rbt_ptr->direction -= 1;
-    if (rbt_ptr->direction < BACK)
-        rbt_ptr->direction = RIGHT;
-}
-
-void ROBOT_ROTATE_DIR_R(robot* rbt_ptr) {
-    rbt_ptr->direction += 1;
-    if (rbt_ptr->direction > RIGHT)
-        rbt_ptr->direction = BACK;
-}
-
-void ROBOT_TURN_HEAD_TO_END(robot* rbt_ptr) {
-    if (rbt_ptr->LR > LCD_MID) {
-        ROBOT_TURN_R(rbt);
-    }
-    else if (rbt_ptr->LR < LCD_MID) {
-        ROBOT_TURN_L(rbt);
-    }
-    else {}
-    while (rbt_ptr->LR != LCD_MID) {
-        ROBOT_GO(rbt);
-    }
-
-    switch (rbt_ptr->direction) {
-    case LEFT:
-        ROBOT_TURN_R(rbt);
-        break;
-
-    case RIGHT:
-        ROBOT_TURN_L(rbt);
-        break;
-
-    default:
-        break;
-    }
-}
-
 robot_trace_array[arrSize] = { {FORWARD, 0, LCD_MID, 0}, };
 trace_index = 0; 
-
-bool ROBOT_CHK_DIR_FW(robot* rbt_ptr) {
-    return rbt_ptr->direction == FORWARD;
-}
-
-bool ROBOT_CHK_DIR_L(robot* rbt_ptr) {
-    return rbt_ptr->direction == LEFT;
-}
-
-bool ROBOT_CHK_DIR_R(robot* rbt_ptr) {
-    return rbt_ptr->direction == RIGHT;
-}
-
-bool ROBOT_CHK_DIR_B(robot* rbt_ptr) {
-    return rbt_ptr->direction == BACK;
-}
 
 bool isRobotArrived(robot* rbt_ptr) {
     return rbt_ptr->FB >= ARRIVAL;
 }
 
-void Delay(int value) {
-    int i;
-    for (i = 0; i < value; i++) {}
-}
-
-void ROBOT_STOP() {
-    MOTOR_SET_STOP();
-}
-
-void ROBOT_GO(robot* rbt_ptr) {
-    MOTOR_SET_GO();
-    switch (rbt_ptr->direction) {
-    case FORWARD:
-        rbt_ptr->FB++;
-        break;
-    case LEFT:
-        rbt_ptr->LR++;
-        break;
-    case RIGHT:
-        rbt_ptr->LR--;
-        break;
-    default:
-        break;
-    }
-    Show_LCD_FB_Displacement(rbt_ptr);
-    Show_LCD_LR_Displacement(rbt_ptr);
-    Show_LCD_Robot_Direction(rbt_ptr);
-    Record_LCD_Robot_Trace(rbt_ptr);
-}
-
-void ROBOT_TURN_R(robot* rbt_ptr) {
-    MOTOR_SET_TURN_RIGHT();
-    Delay(ROTATE_90DEG_DLY);
-    ROBOT_GO(rbt_ptr);
-    Delay(SHORT_DLY);
-    ROBOT_ROTATE_DIR_R(rbt_ptr);
-}
-
-void ROBOT_TURN_L(robot* rbt_ptr) {
-    MOTOR_SET_TURN_LEFT();
-    Delay(ROTATE_90DEG_DLY);
-    ROBOT_GO(rbt_ptr);
-    Delay(SHORT_DLY);
-    ROBOT_ROTATE_DIR_L(rbt_ptr);
-}
 void show_LCD_msg_Arrived(void) {
     LCD_ShowString(120, 300, "ARRIVED", BLUE, YELLOW);
 }
