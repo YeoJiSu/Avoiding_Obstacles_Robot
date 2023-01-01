@@ -140,3 +140,8 @@ Avoiding_Obstacles_Robot
  3. 자율주행 자동차 기능 수행
 - 4륜 구동으로 로봇을 제작했기 때문에 기본적으로 장애물을 회피하는 자율주행 자동차의 역할을 가진다.
 - 위 기능을 기틀로 하여, 보다 발전적인 자율주행 자동차 개발의 가능성을 확인할 수 있다.
+
+----
+
+자세한 내용은 아래 보고서를 참고해주세요.<br>
+[최종 보고서](https://docs.google.com/document/d/1diTTW79o_wZT5trPB3eym0REY6TfK7wClsZOfB5oGHg/edit?usp=sharing)
