@@ -1,7 +1,9 @@
 # 🤖 Avoiding Obstacles Robot
 > 시각 장애인을 위한 자율 주행 로봇 <br>
-> 
-> 프로젝트 기간: 2022.10.08 ~ 2022.12.22
+
+### Member
+- [김태경](https://github.com/Tigerfriend1) & [최상준](https://github.com/chaeso36): 하드웨어 담당(로봇 설계 및 제작)
+- [강준우](https://github.com/June222) & [여지수](https://github.com/YeoJiSu): 소프트웨어 담당(알고리즘 개발 및 적용)
 
 ### 개발 환경 및 도구
 - 개발 환경: [IAR Embedded Workbench](https://www.iar.com/kr/products/architectures/arm/iar-embedded-workbench-for-arm/)
