@@ -1,5 +1,5 @@
 # 🤖 Avoiding Obstacles Robot
-> 시각 장애인을 위한 자율 주행 로봇 <br>
+> 길 안내 자율 주행 로봇 <br>
 
 ### Member
 - [김태경](https://github.com/Tigerfriend1) & [최상준](https://github.com/chaeso36): 하드웨어 담당(로봇 설계 및 제작)
